@@ -15,7 +15,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -110,5 +109,17 @@ public class User {
         return "User [id=" + id + ", userName=" + userName + ", password=" + password + ", nickname=" + nickname
                 + ", age=" + age + ", phoneNumber=" + phoneNumber + ", emailAddress=" + emailAddress + "]";
     }
+
+	public User(Integer id, String userName, String password, String nickname, Integer age, String phoneNumber,
+			String emailAddress) {
+		super();
+		this.id = id;
+		this.userName = userName;
+		this.password = password;
+		this.nickname = nickname;
+		this.age = age;
+		this.phoneNumber = phoneNumber;
+		this.emailAddress = emailAddress;
+	}
 
 }
