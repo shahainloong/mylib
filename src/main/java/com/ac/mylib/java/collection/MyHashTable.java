@@ -2,8 +2,10 @@ package com.ac.mylib.java.collection;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Queue;
 
 import org.slf4j.Logger;
@@ -21,29 +23,16 @@ public class MyHashTable {
 	private static final String NAME_DOCK = "DOCK";
 	private static final String NAME_ELLE = "ELLE";
 	
-	
-	
-	
-	
 	public static void main(String[] args) {
-		String ford = "ford";
-		String ford2 = "ford";
-		String ford3 = new String("ford");
-		String ford4 = new String("ford");
-		
-		List<String> names = new ArrayList<>();
-		names.add(NAME_AMY);
-		names.add(NAME_BOB);
-		names.add(NAME_CLERA);
-		names.add(NAME_DOCK);
-		names.add(NAME_ELLE);
-		for (String name : names) {
-			System.out.println(name.hashCode());
+
+		HashMap<String, String> tvs = new HashMap<>();
+		tvs.put(NAME_AMY, NAME_AMY);
+		tvs.put(NAME_BOB, NAME_BOB);
+		tvs.put(NAME_CLERA,NAME_CLERA);
+		for (Entry<String, String> tv : tvs.entrySet()) {
+			System.out.println(tv.getValue());
+			System.out.println(tv.getKey());
 		}
-		System.out.println(ford==ford3);
-		System.out.println(ford.equals(ford3));
-		System.out.println(ford.hashCode());
-		System.out.println(ford3.hashCode());
 	}
     
 
