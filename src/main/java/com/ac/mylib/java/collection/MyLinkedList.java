@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class MyLinkedList {
 	// spring官方提供的log写法
-    private final static Logger logger = LoggerFactory.getLogger(MyQueue.class);
+    private static final Logger logger = LoggerFactory.getLogger(MyQueue.class);
     
 	private static final String NAME_AMY = "AMY";
 	private static final String NAME_BOB = "BOB";
@@ -45,6 +45,7 @@ public class MyLinkedList {
 		// 。get(index)很花时间，不要使用
 		String obj = staff.get(1);
 		System.out.println(obj);
+		logger.info("end info");
 	}
 
 }

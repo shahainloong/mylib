@@ -27,7 +27,7 @@ import com.google.common.io.BaseEncoding;
  */
 public class MMBCommonsUtil {
     // spring官方提供的log写法
-    private final static Logger logger = LoggerFactory.getLogger(MMBCommonsUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(MMBCommonsUtil.class);
 
     /**
      * 这是为MMB写的获取支付签名的方法，通过私钥和K-V键值对来生成签名
