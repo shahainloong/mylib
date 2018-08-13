@@ -71,6 +71,6 @@ public class CommonsUtil {
     }
 
   public static void main(String[] args) {
-	  isURLExisted("http://172.16.10.30:8001/ntk_report_20180702.xls");
+	  isURLExisted("http://139.224.46.33:81/ntk_report_20180806.xls");
   }
 }
