@@ -16,8 +16,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.Min;
 
-import org.hibernate.validator.constraints.NotBlank;
-
 /**
  * 
  */
@@ -28,7 +26,6 @@ public class User {
     @GeneratedValue
     private Integer id;
 
-    @NotBlank(message = "这个字段必传")
     private String userName;
     
     private String password;
