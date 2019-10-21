@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
+/**
+ * @author echo
+ */
 public class Concurrent {
 
+    // 这个是华为的写法
     public static final ExecutorService curl = Executors.newFixedThreadPool(5);
 
     // 构造一个ThreadPoolExecutor线程池
