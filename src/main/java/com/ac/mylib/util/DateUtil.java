@@ -60,7 +60,11 @@ public class DateUtil {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
         return simpleDateFormat.format(date);
     }
-    
+
+    /**
+     * 获取当前时间，格式如下：2019-10-21 15:03:26.193
+     * @return String
+     */
     public static String getSysDate() {
     	LocalDateTime today = LocalDateTime.now();
         System.out.println(today.toString().replaceAll("T", " "));
