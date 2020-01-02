@@ -1,10 +1,13 @@
 package com.ac.mylib.java.guava;
 
-import com.google.common.base.Optional;
+import com.google.common.base.*;
+
+import java.util.ArrayList;
 
 public class GuavaTester {
 	   public static void main(String args[]){
-	      GuavaTester guavaTester = new GuavaTester();
+		   final long startTime = System.nanoTime();
+		   GuavaTester guavaTester = new GuavaTester();
 
 	      Integer value1 =  null;
 	      Integer value2 =  new Integer(10);
@@ -14,6 +17,15 @@ public class GuavaTester {
 	      Optional<Integer> b = Optional.of(value2);		
 
 	      System.out.println(guavaTester.sum(a,b));
+
+		   ArrayList<String> list = new ArrayList<>();
+		   Runnable runnable = () -> System.out.println("hello");
+		   String s = Functions.toStringFunction().apply("hello".length());
+		   System.out.println(s);
+		   Function<String, Integer> function = (String it) -> it.length();
+		   System.out.println(function.apply("hello"));
+		   final long endTime = System.nanoTime();
+		   System.out.println("The total time is: " + (endTime - startTime));
 	   }
 
 	   public Integer sum(Optional<Integer> a, Optional<Integer> b){

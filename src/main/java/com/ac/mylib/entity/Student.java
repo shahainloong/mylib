@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 @ToString
 @Builder
 public class Student {
-    @NonNull
+
     private String name;
     private String age;
 

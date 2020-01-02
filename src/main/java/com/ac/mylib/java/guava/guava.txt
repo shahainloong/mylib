@@ -1,1 +1,2 @@
 Guava教程: https://www.yiibai.com/guava/
+Guava教程: http://ifeve.com/google-guava/

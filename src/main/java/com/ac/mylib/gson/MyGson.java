@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class MyGson {
 
@@ -16,11 +17,15 @@ public class MyGson {
 
         ArrayList<Account> accountList = new ArrayList<Account>();
         accountList.add(account);
+        accountList.add(account);
         System.out.println(gson.toJson(accountList));
 
         String json = "{\"uid\":\"00001\",\"userName\":\"Freeman\",\"telNumber\":\"13000000000\"}";
         Account receiveAccount = gson.fromJson(json, Account.class);
         System.out.println(receiveAccount.toString());
+
+        Objects.nonNull("hello");
+        Objects.equals("","");
 
 
     }
