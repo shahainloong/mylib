@@ -26,6 +26,7 @@ public class GuavaTester {
 		   System.out.println(function.apply("hello"));
 		   final long endTime = System.nanoTime();
 		   System.out.println("The total time is: " + (endTime - startTime));
+
 	   }
 
 	   public Integer sum(Optional<Integer> a, Optional<Integer> b){
