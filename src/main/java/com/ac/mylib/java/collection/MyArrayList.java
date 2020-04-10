@@ -18,6 +18,7 @@ public class MyArrayList {
 
     public static void main(String[] args) {
 
+
         List<String> names = new ArrayList<>(16);
         names.add(MyArrayList.NAME_AMY);
         names.add(MyArrayList.NAME_BOB);
