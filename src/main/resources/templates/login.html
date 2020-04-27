@@ -11,16 +11,20 @@
         <br/>
         <input id="username"/><br/>
         <input id="password" type="password"/><br/>
-        <input id="login" type="button" value="Log In" onclick="login()"/>
+        <input id="login" type="button" value="Log In"/>
     </div>
 </div>
 <div id="showArea"></div>
 <script>
-    function login() {
-        var username = document.getElementById("username").value;
-        var password = document.getElementById("password").value;
+    window.onload = init;
 
-        document.getElementById("showArea").innerHTML = 'User name is ' + username + ' and password is ' + password;
+    function init() {
+        var login = document.getElementById("login");
+        login.onclick = function login() {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            document.getElementById("showArea").innerHTML = 'User name is ' + username + ' and password is ' + password + ' and event is: ' + event.type;
+        }
     }
 </script>
 </body>

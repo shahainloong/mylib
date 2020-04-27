@@ -13,7 +13,7 @@ public class MyImmutableCollections {
         try {
             list.add(4);
         } catch (UnsupportedOperationException e) {
-            log.info(e.getMessage());
+//            log.info(e.getMessage());
         }
         System.out.println(list);
         ImmutableMap<String, String> map = ImmutableMap.<String, String>builder().put("Java", "1.8").put("Mysql", "7.0").build();
