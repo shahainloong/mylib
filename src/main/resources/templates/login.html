@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>User Login</title>
+</head>
+<body>
+<div id="allLoginArea">
+    <div>
+        <label>Dear friends, login please</label>
+        <br/>
+        <input id="username"/><br/>
+        <input id="password" type="password"/><br/>
+        <input id="login" type="button" value="Log In" onclick="login()"/>
+    </div>
+</div>
+<div id="showArea"></div>
+<script>
+    function login() {
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
+        document.getElementById("showArea").innerHTML = 'User name is ' + username + ' and password is ' + password;
+    }
+</script>
+</body>
+</html>

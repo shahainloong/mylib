@@ -1,0 +1,54 @@
+<!DOCTYPE html>  
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"  
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">  
+    <head>  
+        <title>Hello World!</title>
+<!--        <script src="http://code.jquery.com/jquery-1.10.1.min.js">-->
+        <script>
+            function myFunction(){
+                document.getElementById("demo").innerHTML="Hello World";
+                $('#demo').html("Hello World jQuery");
+
+            }
+            function Person(name, age) {
+                this.name = name;
+                this.age = age;
+                this.address = "Shanghai";
+                this.say = function () {
+                    alert(this.nam + "," + this.age)
+                }
+            }
+            var liudehua = new Person("Liudeha", "18");
+            alert(liudehua.name + "," + liudehua["address"]);
+            // for (var a in liudehua){
+            //     alert(a + "," + liudehua[a]);
+            // }
+            var d = new Date();
+            document.write(d);
+        </script>
+    </head>  
+    <body>  
+        <h1 th:inline="text">Hello.v.2</h1>  
+<!--        <p th:text="${hello}"></p>  -->
+        <p>Click button to trigger function.</p>
+        <button onclick="myFunction()">Button</button>
+        <p id="demo"></p>
+
+        <div id="append">
+        <span>Span Context01</span>
+        <p>This is a paragraph.</p>
+    <ol>
+    <li>List item 1</li>
+    </ol>
+    </div>
+        <script>
+            $(document).ready(function(){
+                $('span').append('Added Context');//无效果
+                $("p").append(" <b>Appended text</b>.");//有标签效果
+                $("ol").append("<li>Appended item</li>");
+            });
+
+
+        </script>
+    </body>  
+</html>  

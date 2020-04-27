@@ -1,5 +1,6 @@
 package com.ac.mylib.java.collection;
 
+import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public class MyArrayList {
         String obj = names.get(0);
         System.out.println(obj);
 
-        System.out.println(names);
+        System.out.println(Joiner.on(",").join(names));
 
     }
 
