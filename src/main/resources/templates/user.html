@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Title</title>
+</head>
+<body>
+
+<div th:each="user,userStat:${userList}" th:class="${userStat.even}?'even':'odd'">
+    序号：<input type="text" th:value="${userStat.count}"/>
+    账号：<input type="text" th:value="${user.username}"/>
+    密码：<input type="password" th:value="${user.password}"/>
+    时间：<input type="text" th:value="${user.createTime}"/>
+    时间：<input type="text" th:value="${#dates.format(user.createTime,'yyyy-MM-dd HH:mm:ss')}"/>
+</div>
+
+<script th:inline="javascript">
+    //通过内联表达式获取用户信息
+    var userList = [[${userList}]];
+    console.log(userList)
+</script>
+
+</body>
+</html>
