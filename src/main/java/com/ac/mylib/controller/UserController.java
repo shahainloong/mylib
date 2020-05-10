@@ -1,28 +1,35 @@
 package com.ac.mylib.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
+import com.ac.mylib.entity.User;
+import com.ac.mylib.service.UserService;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import javax.annotation.Resource;
 
+/**
+ * (User)表控制层
+ *
+ * @author makejava
+ * @since 2020-05-10 00:02:17
+ */
 @RestController
+@RequestMapping("user")
 public class UserController {
-    private List<User> userList = new ArrayList<>();
+    /**
+     * 服务对象
+     */
+    @Resource
+    private UserService userService;
 
-    {
-        userList.add(new User("1", "socks", "123456", new Date()));
-        userList.add(new User("2", "admin", "111111", new Date()));
-//        userList.add(new User("3", "jacks", "222222", null));
-    }
-
-    @GetMapping("/user")
-    public ModelAndView index() {
-        return new ModelAndView("user", "userList", userList);
+    /**
+     * 通过主键查询单条数据
+     *
+     * @param id 主键
+     * @return 单条数据
+     */
+    @GetMapping("selectOne")
+    public User selectOne(Integer id) {
+        return this.userService.queryById(id);
     }
 
 }
-
-
