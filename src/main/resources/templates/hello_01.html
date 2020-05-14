@@ -11,26 +11,27 @@
         // })
         // 但是一般可以这么用，而且下面的是常用的写法
         $(function () {
-            var helloJS = document.getElementsByClassName("female");
-            // helloJS.css("color", "#ffo");// helloJS is javascript object
-            $(helloJS).css("color", "#f00"); // use $(xxx) can make JS object as a jquery object
+            // To get a javascript object by js statement
+            var femaleJS = document.getElementsByClassName("female");
+            // femaleJS is javascript object so that we could not use jQuery function .css()
+            // femaleJS.css("color", "#f00");
+            // use $(xxx) can make JS object as a jquery object
+            $(femaleJS).css("color", "#f00");
             // every jquery node is array, and its value is js node
             // alert($("ul li").length);
             // alert($("ul li")[1].html());
             var mingUsers = $("ul#ming li");
             for (var i = 0; i < mingUsers.length; i++) {
-                var user = mingUsers[i]
-                user.innerHTML = "["+(i+1)+"]"+ user.innerHTML;
+                // This is js usage description.
+                var mingUser = mingUsers[i];
+                mingUser.innerHTML = "[" + (i + 1) + "]" + mingUser.innerHTML;
             }
             var wudangUsers = $("ul#wudang li");
-            for (var i = 0; i < wudangUsers.length; i++){
+            for (var i = 0; i < wudangUsers.length; i++) {
+                // This is the usage description of jQuery.
                 var wudangUser = $(wudangUsers[i]);
-                wudangUser.html("["+(i+1)+"]"+wudangUser.html());
+                wudangUser.html("[" + (i + 1) + "]" + wudangUser.html());
             }
-            // for (var i = 0; i < $("ul li").length; i++){
-            //     alert($("li.male")[i].innerHTML);
-            // }
-            // $("#hello ul li.Chris").html(this.value() + "hello li");
         })
     </script>
 </head>
