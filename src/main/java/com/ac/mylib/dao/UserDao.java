@@ -22,6 +22,8 @@ public interface UserDao {
      */
     User queryById(Integer id);
 
+    List<User> getUsersById(@Param("id") Integer id, @Param("age") Integer age);
+
     /**
      * 查询指定行数据
      *

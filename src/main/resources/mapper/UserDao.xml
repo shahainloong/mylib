@@ -20,6 +20,13 @@
         where id = #{id}
     </select>
 
+    <select id="getUsersById" resultType="com.ac.mylib.entity.User">
+        select
+          id, age, email_address, nickname, password, phone_number, user_name
+        from hyron_test.user
+        where id = #{id} and age = #{age}
+    </select>
+
     <!--查询指定行数据-->
     <select id="queryAllByLimit" resultMap="UserMap">
         select
@@ -31,7 +38,7 @@
     <!--通过实体作为筛选条件查询-->
     <select id="queryAll" resultMap="UserMap">
         select
-          id, age, email_address, nickname, password, phone_number, user_name
+        id, age, email_address, nickname, password, phone_number, user_name
         from hyron_test.user
         <where>
             <if test="id != null">

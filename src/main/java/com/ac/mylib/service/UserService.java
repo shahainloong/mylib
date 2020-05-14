@@ -19,6 +19,8 @@ public interface UserService {
      */
     User queryById(Integer id);
 
+    List<User> getUsersById(Integer id, Integer age);
+
     /**
      * 查询多条数据
      *

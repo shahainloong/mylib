@@ -30,6 +30,11 @@ public class UserServiceImpl implements UserService {
         return this.userDao.queryById(id);
     }
 
+    @Override
+    public List<User> getUsersById(Integer id, Integer age) {
+        return this.userDao.getUsersById(id, age);
+    }
+
     /**
      * 查询多条数据
      *
