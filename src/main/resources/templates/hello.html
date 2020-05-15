@@ -10,21 +10,83 @@
                 $('#demo').html("Hello World jQuery");
 
             }
+            function Parent(name) {
+                this.color = ["red", "blue"];
+                this.name = name;
+            }
+            Parent.prototype.ps = function () {
+                alert(this.name+this.color);
+            }
+            function Child(name, age) {
+
+                Parent.call(this, name);
+                this.age = age;
+            }
+
             function Person(name, age) {
                 this.name = name;
                 this.age = age;
                 this.address = "Shanghai";
-                this.say = function () {
-                    alert(this.nam + "," + this.age)
+            }
+            Person.prototype = {
+                constructor: Person,
+                say: function () {
+                    alert(this.name);
                 }
             }
-            var liudehua = new Person("Liudeha", "18");
-            alert(liudehua.name + "," + liudehua["address"]);
+
+            function People() {
+
+            }
+            People.prototype.name = "Ada";
+            People.prototype.age = 23;
+            People.prototype.say = function () {
+                alert(this.name+","+this.age);
+            }
+            var Ada = new People();
+            Ada.say();
+
+            var liudehua = new Person("Liu dehua", "18");
+            var gutianle = liudehua;
+            // alert(liudehua.name + "," + liudehua["address"]);
+            // alert(gutianle.name + "," + gutianle.address);
+            gutianle.name = "Gutianle";
+            // alert(gutianle.name + "," + gutianle.address);
+            // alert(liudehua.name + "," + liudehua["address"]);
+
+            // function f1(){
+            //     alert("f1");
+            // }
+            // var f2 = f1()
+
             // for (var a in liudehua){
             //     alert(a + "," + liudehua[a]);
             // }
+            // alert(typeof Person);
             var d = new Date();
             document.write(d);
+            function fn1(arg) {
+                var rel = function (num) {
+                    return arg + num;
+                }
+                return rel;
+            }
+            var f = fn1(20);
+            // alert(f);
+            // alert(f(11));
+            // function say(num) {
+            //     alert(arguments.length);
+            //     alert(num);
+            //     return fn1.apply(this, arguments)
+            // }
+            // say(1,2,3);
+            // alert(say.length);
+            var person = new Object();
+            person.name = "Echo";
+            person.age = 18;
+            alert(person.name);
+            var liudehua = {"name":"Liudehua"," ":"26"}
+            alert(liudehua.name)
         </script>
     </head>  
     <body>  

@@ -28,7 +28,7 @@ public class UserController {
      * @return 单条数据
      */
     @GetMapping("selectOne")
-    public User selectOne(Integer id) {
+    public User selectOne(@RequestParam(name = "id") final Integer id) {
         return this.userService.queryById(id);
     }
 
