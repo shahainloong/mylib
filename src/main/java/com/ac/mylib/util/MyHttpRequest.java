@@ -168,8 +168,56 @@ public class MyHttpRequest {
     return result;
   }
 
+  /**
+   * 向指定URL发送GET方法的请求
+   *
+   * @param url 发送请求的URL
+   * @param charset 发送和接收的格式
+   * @return URL 所代表远程资源的响应结果
+   */
+  public static String sendGet(String url, String charset) {
+    String result = "";
+    String line;
+    StringBuffer sb = new StringBuffer();
+    BufferedReader in = null;
+    try {
+      String urlNameString = url;
+      URL realUrl = new URL(urlNameString);
+      // 打开和URL之间的连接
+      URLConnection conn = realUrl.openConnection();
+      // 设置通用的请求属性 设置请求格式
+      conn.setRequestProperty("contentType", charset);
+      conn.setRequestProperty("content-type", "application/x-www-form-urlencoded");
+      // 设置超时时间
+      conn.setConnectTimeout(60);
+      conn.setReadTimeout(60);
+      // 建立实际的连接
+      conn.connect();
+      // 定义 BufferedReader输入流来读取URL的响应,设置接收格式
+      in = new BufferedReader(new InputStreamReader(conn.getInputStream(), charset));
+      while ((line = in.readLine()) != null) {
+        sb.append(line);
+      }
+      result = sb.toString();
+    } catch (Exception e) {
+      System.out.println("发送GET请求出现异常！" + e);
+      e.printStackTrace();
+    }
+    // 使用finally块来关闭输入流
+    finally {
+      try {
+        if (in != null) {
+          in.close();
+        }
+      } catch (Exception e2) {
+        e2.printStackTrace();
+      }
+    }
+    return result;
+  }
+
     public static void main(String[] args) {
-        String getUrl="http://172.16.10.30:8001/ntk_report_20180709.xls";
+        String getUrl="https://blog.csdn.net/qq_28256783/article/details/82346208";
         String postUrl="http://gc.ditu.aliyun.com/geocoding";
         String param="application/vnd.ms-excel";
 //        String param1="a=苏州市";
@@ -178,7 +226,7 @@ public class MyHttpRequest {
 //        map.put("ip", "218.4.255.255");
 //        Map<String,Object> map1=new HashMap<String,Object>();
 //        map1.put("a", "苏州市");
-        System.out.println("Get请求1:"+MyHttpRequest.sendGet(getUrl, param,"utf-8"));
+        System.out.println("Get请求1:"+sendGet(getUrl,"utf-8"));
 //        System.out.println("Get请求2:"+MyHttpRequest.sendGet(getUrl, map,"utf-8"));
 //        System.out.println("Post请求1:"+MyHttpRequest.sendPost(postUrl, param1,"utf-8"));
 //        System.out.println("Post请求2:"+MyHttpRequest.sendPost(postUrl, map,"utf-8"));
