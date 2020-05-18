@@ -15,6 +15,7 @@
     </div>
 </div>
 <div id="showArea"></div>
+<script type="text/javascript" src="./../static/jquery-3.5.1.js"></script>
 <script>
     window.onload = init;
 
@@ -23,12 +24,18 @@
         login.onclick = function login() {
             var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
-            if (username.length < 6){
-                var userNameErrorMsg = document.getElementById("user-name-error");
-                userNameErrorMsg.hidden = false;
-                userNameErrorMsg.innerHTML = "Your name length is too small";
-
-            }
+            $.ajax({
+                url: "/client/user/" + username + "?age=18", success: function (data) {
+                    if (data != null && data.length) {
+                        var userNameErrorMsg = document.getElementById("user-name-error");
+                        userNameErrorMsg.hidden = false;
+                        userNameErrorMsg.innerHTML = "The user already exists!";
+                    } else {
+                        var userNameErrorMsg = document.getElementById("user-name-error");
+                        userNameErrorMsg.hidden = true;
+                    }
+                }
+            })
             document.getElementById("showArea").innerHTML = 'User name is ' + username + ' and password is ' + password + ' and event is: ' + event.type;
         }
     }
