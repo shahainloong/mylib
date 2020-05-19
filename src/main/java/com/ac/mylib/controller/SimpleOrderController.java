@@ -1,5 +1,6 @@
 package com.ac.mylib.controller;
 
+import com.ac.mylib.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
@@ -9,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class SimpleOrderController {
+    @Autowired
+    private MailService mailService;
 
     private MailSender mailSender;
 
@@ -22,26 +25,20 @@ public class SimpleOrderController {
         this.templateMessage = templateMessage;
     }
 
-    @GetMapping(path = "/send")
-    public void send() {
+    @GetMapping(path = "/send/qq")
+    public void sendToQQ() {
+        String to = "462148780@qq.com";
+        String subject = "Hello subject";
+        String content = "This is content test on 2020/05/19 22:32";
+        mailService.sendSimpleMail(to, subject, content);
+    }
 
-        // Do the business calculations...
-
-        // Call the collaborators to persist the order...
-
-        // Create a thread safe "copy" of the template message and customize it
-        SimpleMailMessage msg = new SimpleMailMessage(this.templateMessage);
-        msg.setTo("hailong.sha@sap.com");
-        msg.setText(
-                "Dear "
-                        + ", thank you for placing order. Your order number is "
-                        + "order.getOrderNumber()");
-        try {
-            this.mailSender.send(msg);
-        } catch (MailException ex) {
-            // simply log it and go on...
-            System.err.println(ex.getMessage());
-        }
+    @GetMapping(path = "/send/163")
+    public void sendTo163() {
+        String to = "njfu126@163.com";
+        String subject = "Hello subject";
+        String content = "This is content test on 2020/05/19 22:32";
+        mailService.sendSimpleMail(to, subject, content);
     }
 
 }
