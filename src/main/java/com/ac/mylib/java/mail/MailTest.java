@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
@@ -25,26 +26,35 @@ public class MailTest
    public static void main(String[] args) throws MessagingException, IOException
    {
       Properties props = new Properties();
-      try (InputStream in = Files.newInputStream(Paths.get("D:\\workspace-idea\\mylib\\src\\main\\java\\com\\ac\\mylib\\java\\mail\\mail.properties")))
+      String path = MailTest.class.getClassLoader().getResource("./mail.properties").getPath();
+      try (InputStream in = Files.newInputStream(Paths.get("C:\\D\\workspace-idea\\mylib\\src\\main\\java\\com\\ac\\mylib\\java\\mail\\mail.properties")))
       {
          props.load(in);
       }
-      List<String> lines = Files.readAllLines(Paths.get("D:\\workspace-idea\\mylib\\src\\main\\java\\com\\ac\\mylib\\java\\mail\\message.txt"), Charset.forName("UTF-8"));
+//      props.put("mail.transport.protocol", "smtp");
+//      props.put("mail.smtps.auth", true);
+//      props.put("mail.smtps.host", "smtp.163.com");
+//      props.put("mail.smtps.user", "njfu126@163.com");
+      List<String> lines = Files.readAllLines(Paths.get("C:\\D\\workspace-idea\\mylib\\src\\main\\java\\com\\ac\\mylib\\java\\mail\\message.txt"), Charset.forName("UTF-8"));
        
-      String from = lines.get(0);
-      String to = lines.get(1);
-      String subject = lines.get(2);
-      
+//      String from = lines.get(0);
+//      String to = lines.get(1);
+//      String subject = lines.get(2);
+      String from = "njfu126@163.com";
+      String to = "hailong.sha@sap.com";
+      String subject = "Title";
+
       StringBuilder builder = new StringBuilder();
-      for (int i = 3; i < lines.size(); i++)
-      {
-         builder.append(lines.get(i));
-         builder.append("\n");
-      }
+      builder.append("This is content");
+//      for (int i = 3; i < lines.size(); i++)
+//      {
+//         builder.append(lines.get(i));
+//         builder.append("\n");
+//      }
       
 //      Console console = System.console();
 //      String password = new String(console.readPassword("Password: "));
-      String password = "chen199571";
+      String password = "JWGAJPIITOPXDTAT";
 
       Session mailSession = Session.getDefaultInstance(props);
       // mailSession.setDebug(true);
