@@ -9,6 +9,8 @@ import javax.mail.internet.MimeMessage.RecipientType;
 import java.io.Console;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,34 +25,31 @@ import java.util.Properties;
  */
 public class MailTest
 {
-   public static void main(String[] args) throws MessagingException, IOException
-   {
+   public static void main(String[] args) throws MessagingException, IOException, URISyntaxException {
       Properties props = new Properties();
-      String path = MailTest.class.getClassLoader().getResource("./mail.properties").getPath();
-      try (InputStream in = Files.newInputStream(Paths.get("C:\\D\\workspace-idea\\mylib\\src\\main\\java\\com\\ac\\mylib\\java\\mail\\mail.properties")))
-      {
+//      String path = MailTest.class.getClassLoader().getResource("mail.properties").getPath();
+//      try (InputStream in = Files.newInputStream(Paths.get("C:\\D\\workspace-idea\\mylib\\src\\main\\java\\com\\ac\\mylib\\java\\mail\\mail.properties")))
+//      {
+//         props.load(in);
+//      }
+//      List<String> lines = Files.readAllLines(Paths.get("C:\\D\\workspace-idea\\mylib\\src\\main\\java\\com\\ac\\mylib\\java\\mail\\message.txt"), Charset.forName("UTF-8"));
+      try (InputStream in = MailTest.class.getClassLoader().getResourceAsStream("mail.properties")) {
          props.load(in);
       }
-//      props.put("mail.transport.protocol", "smtp");
-//      props.put("mail.smtps.auth", true);
-//      props.put("mail.smtps.host", "smtp.163.com");
-//      props.put("mail.smtps.user", "njfu126@163.com");
-      List<String> lines = Files.readAllLines(Paths.get("C:\\D\\workspace-idea\\mylib\\src\\main\\java\\com\\ac\\mylib\\java\\mail\\message.txt"), Charset.forName("UTF-8"));
-       
-//      String from = lines.get(0);
-//      String to = lines.get(1);
-//      String subject = lines.get(2);
-      String from = "njfu126@163.com";
-      String to = "hailong.sha@sap.com";
-      String subject = "Title";
+      URL url = Thread.currentThread().getContextClassLoader().getResource("message.txt");
+
+      List<String> lines = Files.readAllLines(Paths.get(url.toURI()), Charset.forName("UTF-8"));
+      String from = lines.get(0);
+      String to = lines.get(1);
+      String cc = "zachary.li@sap.com";
+      String subject = lines.get(2);
 
       StringBuilder builder = new StringBuilder();
-      builder.append("This is content");
-//      for (int i = 3; i < lines.size(); i++)
-//      {
-//         builder.append(lines.get(i));
-//         builder.append("\n");
-//      }
+      for (int i = 3; i < lines.size(); i++)
+      {
+         builder.append(lines.get(i));
+         builder.append("\n");
+      }
       
 //      Console console = System.console();
 //      String password = new String(console.readPassword("Password: "));
@@ -61,6 +60,7 @@ public class MailTest
       MimeMessage message = new MimeMessage(mailSession);
       message.setFrom(new InternetAddress(from));
       message.addRecipient(RecipientType.TO, new InternetAddress(to));
+//      message.addRecipient(RecipientType.CC, new InternetAddress(cc));
       message.setSubject(subject);
       message.setText(builder.toString());
       Transport tr = mailSession.getTransport();
