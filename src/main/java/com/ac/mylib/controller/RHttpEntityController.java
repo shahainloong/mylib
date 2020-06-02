@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * 以后Controller这样命名，R开头的代表Restful的控制器
+ * 以后Controller这样命名，R开头的代表Restful的控制器，这个是我写的spring下httpclient的方法
  *
  * @author Echo
  * @since 2020-05-10 00:02:17
