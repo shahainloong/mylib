@@ -1,0 +1,118 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile editor</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Language" content="en-US" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="description" content="SAP - Profile editor" />
+    <meta name="keywords" content="SAP, RDS, Profile editor, Rapid Authoring, Rapid Deployment Solution, Solution Area, Implementation" />
+
+    <script type="text/javascript">
+        if (location.hash) {
+            location.href = encodeURI(location.href.replace('/#/', '/')); // preserve the hash!
+        }
+    </script>
+
+    <link rel="stylesheet" href="/authoring/css/rdc.min.css?v=20200428091847" type="text/css" media="screen, projection"></link>
+
+    <link rel="stylesheet" type="text/css" href="/authoring/css/external_style.css?v=20200428091847" />
+</head>
+<body>
+<div id="background-wrapper">
+    <div id="shell-header" class="clearfix">
+        <div id="shell-nav0"></div>
+        <span class="sap-logo" tabindex="-1"></span>
+        <a href="./" id="shell-identity" tabindex="-1">
+            <span tabindex="0">Profile editor</span>
+        </a>
+    </div>
+    <div id="shell-content" class="container content loginPage clearfix">
+        <div class="span-16 leftCol">
+            <h1>Go the Rapid Way</h1>
+            <div class="descriptionArea">
+                Login to gain insight into SAP Rapid Deployment Solutions and to benefit from them.
+            </div>
+        </div>
+
+        <div class="span-7 rightCol">
+            <div class="loginContent">
+                <div class="loginMessage">RDC user required</div>
+
+
+                <form action="j_security_check" method="post" target="_top">
+                    <div class="formRow first">
+                        <label for="j_username" class="extLabel">User ID</label>
+                        <input type="text" name="j_username" id="j_username" class="extInput"></input>
+                    </div>
+                    <div class="formRow">
+                        <label for="j_password" class="extLabel">Password</label>
+                        <input type="password" name="j_password" id="j_password" class="extInput" autocomplete="off"></input>
+                    </div>
+
+                    <div class="loginFooter">
+                        <input type="submit" class="extButton" value="Log In" />
+                    </div>
+                </form>
+
+                <div class="loginRegistrationHints">
+                    <div class="hint first">
+                        <a href="https://uap.wdf.sap.corp/sap/bc/webdynpro/sap/yupa_extend_auth?pa_mandt=001&pa_system=RBP&pa_profile=0000_RBP_RDC_AUTHOR_ALL#">Request Your User ID</a>
+                    </div>
+                    <div class="hint">
+                        <a href="https://uap.wdf.sap.corp/sap/bc/webdynpro/sap/yupa_pw_self_service?sap-cp-client=001&sap-language=EN">Forgot password?</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="moreAboutRdsContent">
+                Visit the SAP Rapid Deployment Solutions page on <a href="http://www.sap.com/rds">www.sap.com/rds</a>
+            </div>
+
+        </div>
+
+    </div>
+    <div id="shell-footer">
+        <ul class="footerTop">
+            <li><a href="/authoring/#/home/">Home</a></li>
+            <li><a href="mailto:rds.feedback@sap.com">Email Us</a></li>
+            <li><a href="https://support.wdf.sap.corp/sap/bc/dsi/ii/create_zini?sap-language=EN&amp;system_id=RBP&amp;priority=5&amp;main_impact=A&amp;category_label=SV-RDS-BC-PE" target="_blank">Report a bug</a></li>
+        </ul>
+        <ul class="footerBtm">
+            <li><a href="http://www.sap.com/corporate-en/our-company/legal/privacy.epx" target="_blank">Privacy</a></li>
+            <li><a href="tou.jsp" target="_blank">Terms of Use</a></li>
+            <li><a href="http://www.sap.com/corporate-en/our-company/legal/impressum.epx" target="_blank">Legal Disclosure</a></li>
+            <li><a href="http://www.sap.com/corporate-en/our-company/legal/copyright/index.epx" target="_blank">Copyright</a></li>
+            <li><a href="javascript:var c=sap.ui.getCore();c.applyTheme(c.getConfiguration().getTheme() === 'sap_hcb' ? 'sap_goldreflection' : 'sap_hcb');">High Contrast Theme</a></li>
+        </ul>
+    </div>
+</div>
+</body>
+
+<script type="text/javascript">
+    if (typeof(jQuery) === "undefined") {
+        document.write(unescape("%3Cscript src='/sapui5-1.32.15/resources/sap/ui/thirdparty/jquery/jquery-1.8.1.js' type='text/javascript'%3E%3C/script%3E"));
+    }
+</script>
+<script type="text/javascript">
+    $('document').ready(function() {
+        $('#j_username').focus();
+    });
+</script>
+
+
+
+<script src="/sapui5-1.32.15/resources/sap/ui/thirdparty/jqueryui/jquery-ui-position.js" ></script>
+<script id="sap-ui-bootstrap" type="text/javascript"
+        src="/sapui5-1.32.15/resources/sap-ui-core-nojQuery.js"
+        data-sap-ui-theme="sap_goldreflection"
+        data-sap-ui-libs="sap.ui.commons, sap.m, sap.ui.core"></script>
+<script src="/authoring/js/rdc.min.js?v=20200428091847" type="text/javascript"></script>
+
+
+</html>
