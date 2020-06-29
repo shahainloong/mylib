@@ -41,7 +41,7 @@ public class MailTest
       List<String> lines = Files.readAllLines(Paths.get(url.toURI()), Charset.forName("UTF-8"));
       String from = lines.get(0);
       String to = lines.get(1);
-      String cc = "zachary.li@sap.com";
+      String cc = "hailong.sha@sap.com";
       String subject = lines.get(2);
 
       StringBuilder builder = new StringBuilder();

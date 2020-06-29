@@ -3,13 +3,13 @@ package com.ac.mylib.util;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.CacheConfiguration;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
+import org.ehcache.config.builders.*;
 import org.ehcache.config.units.EntryUnit;
 import org.ehcache.config.units.MemoryUnit;
+import org.ehcache.event.EventType;
 import org.ehcache.expiry.Duration;
 import org.ehcache.expiry.Expirations;
+import org.ehcache.impl.config.event.DefaultCacheEventListenerConfiguration;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Configuration;
 
@@ -31,6 +31,7 @@ public class EhcacheUtil {
      * 初始化Ehcache缓存对象
      */
     public EhcacheUtil() {
+        CacheEventListenerConfigurationBuilder cacheEventListenerConfiguration = CacheEventListenerConfigurationBuilder.newEventListenerConfiguration(new MyEhcacheListener(), EventType.CREATED).unordered().asynchronous();
         System.out.println("[Ehcache配置初始化<开始>]");
 
         // 配置默认缓存属性
@@ -48,7 +49,7 @@ public class EhcacheUtil {
                         .disk(500L, MemoryUnit.MB, false)
         ).withExpiry(Expirations.timeToLiveExpiration(
                 //设置缓存过期时间
-                Duration.of(30L, TimeUnit.SECONDS))
+                Duration.of(3L, TimeUnit.SECONDS))
         ).withExpiry(Expirations.timeToIdleExpiration(
                 //设置被访问后过期时间(同时设置和TTL和TTI之后会被覆盖,这里TTI生效,之前版本xml配置后是两个配置了都会生效)
                 Duration.of(60L, TimeUnit.SECONDS))
@@ -56,7 +57,7 @@ public class EhcacheUtil {
                 // 这块还没看
         /*.withEvictionAdvisor(
                 new OddKeysEvictionAdvisor<Long, String>())*/
-        ).build();
+        ).add(cacheEventListenerConfiguration).build();
         // CacheManager管理缓存
         cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
                 // 硬盘持久化地址
@@ -70,6 +71,9 @@ public class EhcacheUtil {
     }
 
     public static void main(String[] args) {
+        CacheEventListenerConfigurationBuilder cacheEventListenerConfiguration = CacheEventListenerConfigurationBuilder
+                .newEventListenerConfiguration(new MyEhcacheListener(), EventType.CREATED, EventType.UPDATED)
+                .unordered().asynchronous();
         CacheManager cacheManager = CacheManagerBuilder.newCacheManagerBuilder()
                 .withCache("preConfigured",
                         CacheConfigurationBuilder.newCacheConfigurationBuilder(Long.class, String.class,
@@ -82,7 +86,7 @@ public class EhcacheUtil {
 
         Cache<Long, String> myCache = cacheManager.createCache("myCache",
                 CacheConfigurationBuilder.newCacheConfigurationBuilder(Long.class, String.class,
-                        ResourcePoolsBuilder.heap(100)).build());
+                        ResourcePoolsBuilder.heap(100)).add(cacheEventListenerConfiguration).build());
 
         myCache.put(1L, "da one!");
         preConfigured.put(1L, "do one!");

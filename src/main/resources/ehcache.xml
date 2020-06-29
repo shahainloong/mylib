@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ehcache>
+
+    <!-- 设置缓存文件创建路径 -->
+    <diskStore path="java.io.tmpdir"/>
+
+    <!--
+        maxEntriesLocalHeap ： 堆内存中最大缓存对象数，0没有限制；
+        eternal: true,对象是永久有效,timeout将被忽略；
+        timeToIdleSeconds: 缓存过期前的闲置时间；
+        timeToLiveSeconds: 缓存过期前的生存时间，创建时间到失效时间的间隔为存活时间；
+        注：timeToIdleSeconds和timeToLiveSeconds： 当eternal为false时，这个属性才有效，0为不限制；
+        maxEntriesLocalDisk： 磁盘中的最大对象数,默认为0不限制；
+        diskExpiryThreadIntervalSeconds： 使用过期算法清除磁盘中失效对象的间隔；
+        memoryStoreEvictionPolicy： 当超过最大内存限制时，根据指定的策略去清理内存。默认策略是LRU。
+        清理内存的三种算法： LRU（最近最少使用） 、LFU（较少使用）、FIFO（先进先出）
+    -->
+    <cache name="what21Cache"
+           maxEntriesLocalHeap="10000"
+           eternal="false"
+           timeToIdleSeconds="60"
+           timeToLiveSeconds="60"
+           maxEntriesLocalDisk="10000000"
+           diskExpiryThreadIntervalSeconds="30"
+           memoryStoreEvictionPolicy="LRU">
+        <!--
+                 持久化策略： localTempSwap、localRestartable
+        -->
+        <persistence strategy="localTempSwap"/>
+        <!--
+            监听器
+        -->
+        <cacheEventListenerFactory
+                class="com.what21.ehcache.event.MyCacheEventListenerFactory"
+                properties="cache=mycache" />
+    </cache>
+</ehcache>
