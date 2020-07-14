@@ -31,6 +31,10 @@ public class Test3 {
     System.out.println(names.size());
 //      Callable<String>
 //      Future<String>
+    final StringBuffer sb = new StringBuffer();
+    sb.append("hello ");
+    sb.append("world");
+    System.out.println(sb.toString());
   }
 
 }
