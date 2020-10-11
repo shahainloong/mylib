@@ -4,8 +4,7 @@ import com.google.common.base.Joiner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class MyArrayList {
     // spring官方提供的log写法
@@ -20,8 +19,10 @@ public class MyArrayList {
     public static void main(String[] args) {
 
 
-        List<String> names = new ArrayList<>(16);
+        List<String> names = new ArrayList<>();
+        System.out.println(names.size());
         names.add(MyArrayList.NAME_AMY);
+        System.out.println(names.size());
         names.add(MyArrayList.NAME_BOB);
         names.add(MyArrayList.NAME_CLERA);
         names.add(MyArrayList.NAME_DOCK);
