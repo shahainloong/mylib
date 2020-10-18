@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class MyHashMap {
     public static void main(String[] args) {
-//        HashMap<String, String> map = new HashMap<>();
+        HashMap<String, String> hashMap = new HashMap<>();
 //        System.out.println(map.size());
         MultiValuedMap<String, String> map = new ArrayListValuedHashMap<>();
 

@@ -1,26 +1,18 @@
 ------
 
-# 二 Title is here
+# 源码浅析_Java_Collection_ArrayList
 
-> 作者：Echo。
-
-要写的文档
-
-arraylist
-
-fail-fast
+> 作者：Echo
 
 
 
-## 2.1 Java基础
+## 源码分析
 
-Collection
-
-ArrayList
+### Diagram图
 
 ![sap_cp_pe_apply_account_for_rjp](./../images/java/java_collection_array_list_diagram.png)
 
-源码解析：
+### 源码解析
 
 ```java
 /**
@@ -624,14 +616,20 @@ public class ArrayList<E> extends AbstractList<E>
 }
 ```
 
-扩容机制
+## 扩容机制
+
+### 逻辑流程
 
 Array List有三种构造方法，无参构造函数，和两个带参数的构造函数，以无参构造函数为例：
 
 ```java
 List<String> list = new ArrayList<>();
-list.add("hello world");
+list.add("hello");
 ```
+
+ArrayList.add()
+
+第一次添加hello时，size是0。
 
 ```java
 /**
@@ -644,9 +642,11 @@ public boolean add(E e) {
 }
 ```
 
+ArrayList.ensureCapacityInternal()
+
+minCapacity是1，calculateCapacity计算出来的minCapacity是10。
+
 ```java
-
-
 private void ensureCapacityInternal(int minCapacity) {
     ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
 }
@@ -659,6 +659,14 @@ private static int calculateCapacity(Object[] elementData, int minCapacity) {
     return minCapacity;
 }
 
+```
+
+ArrayList.ensureExplicitCapacity()
+
+第一次add时，要走grow(10)
+
+```java
+
 // ensureCapacity(int minCapacity)调用这个方法，
 private void ensureExplicitCapacity(int minCapacity) {
     modCount++;
@@ -668,3 +676,76 @@ private void ensureExplicitCapacity(int minCapacity) {
         grow(minCapacity);
 }
 ```
+ArrayList.grow()
+
+第一次add时，oldCapacity和newCapacity都是0，所以扩容成默认的10。
+
+```java
+/**
+ * 这个是扩容的核心方法，增加容量使得这个arraylist可以容纳指定的最小容量参数的元素数目.
+ */
+private void grow(int minCapacity) {
+    // overflow-conscious code
+    // oldCapacity是原来的容量
+    int oldCapacity = elementData.length;
+    // 左移代表除以2，就是说newCapacity现在是oldCapacity的1.5倍容量大小
+    int newCapacity = oldCapacity + (oldCapacity >> 1);
+    // 如果newCapacity还是比minCapacity小，就用minCapacity代替newCapacity
+    if (newCapacity - minCapacity < 0)
+        newCapacity = minCapacity;
+    // 为了防止newCapacity无限大，要用hugeCapacity函数控制其大小
+    if (newCapacity - MAX_ARRAY_SIZE > 0)
+        // 要是newCapacity超过了int最大值，newCapacity就是Integer.MAX_VALUE，没超过就是MAX_ARRAY_SIZE
+        newCapacity = hugeCapacity(minCapacity);
+    // minCapacity is usually close to size, so this is a win:
+    elementData = Arrays.copyOf(elementData, newCapacity);
+}
+
+// minCapacity大于2147483639才会用到
+private static int hugeCapacity(int minCapacity) {
+    if (minCapacity < 0) // overflow
+        throw new OutOfMemoryError();
+    return (minCapacity > MAX_ARRAY_SIZE) ?
+        Integer.MAX_VALUE :
+    MAX_ARRAY_SIZE;
+}
+```
+Arrays.copyOf()
+
+```java
+public static <T> T[] copyOf(T[] original, int newLength) {
+    return (T[]) copyOf(original, newLength, original.getClass());
+}
+public static <T,U> T[] copyOf(U[] original, int newLength, Class<? extends T[]> newType) {
+        @SuppressWarnings("unchecked")
+        T[] copy = ((Object)newType == (Object)Object[].class)
+            ? (T[]) new Object[newLength]
+            : (T[]) Array.newInstance(newType.getComponentType(), newLength);
+        System.arraycopy(original, 0, copy, 0,
+                         Math.min(original.length, newLength));
+        return copy;
+    }
+```
+
+System.arraycopy()
+
+```java
+    public static native void arraycopy(Object src,  int  srcPos,
+                                        Object dest, int destPos,
+                                        int length);
+```
+
+分析
+
+| add次数                | 1                                                            | 2          | 3          |
+| ---------------------- | ------------------------------------------------------------ | ---------- | ---------- |
+| ensureCapacityInternal | size+1=1                                                     | 2          | 3          |
+| calculateCapacity      | elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA，返回Math.max(DEFAULT_CAPACITY, minCapacity)的值10 | 2          | 3          |
+| ensureExplicitCapacity | minCapacity - elementData.length>0，进入grow()               | 不进入grow | 不进入grow |
+| grow()                 | newCapacity - minCapacity < 0，扩容成10                      | -          | -          |
+
+第一次add，会进入ensureCapacityInternal(1)，先通过calculateCapacity(1)计算出需要的容量，此时elementData还是默认的空实例，所以取得Math.max(DEFAULT_CAPACITY, minCapacity)的值10，进入ensureExplicitCapacity(10)，10- elementData.length > 0就要进入grow(10)，这里面newCapacity要扩容成oldCapacity的1.5倍，在和10比较，10 - newCapacity > 0，开始用Arrays.copyOf(elementData, 10)扩容
+
+第二次add，会进入ensureCapacityInternal(2)，先通过calculateCapacity(1)计算出需要的容量，此时elementData不是默认的空实例，所以直接取值2，进入ensureExplicitCapacity(2)，此时elementData.length已经扩容成了10，2- elementData.length < 0就不会进入grow(minCapacity)进行扩容了。
+
+第三次add，第四次add情况和第二次相同，知道第十一次时，才会再次进入grow(minCapacity)进行扩容。
