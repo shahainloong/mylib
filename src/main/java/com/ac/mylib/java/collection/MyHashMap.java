@@ -5,16 +5,30 @@ import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class MyHashMap {
     public static void main(String[] args) {
-        HashMap<String, String> hashMap = new HashMap<>();
+        HashMap<String, String> hashMap = new HashMap<>(16);
+        System.out.println("Lee".hashCode());
 //        System.out.println(map.size());
-        MultiValuedMap<String, String> map = new ArrayListValuedHashMap<>();
-
-        map.put("key1", "value1");
-
-        map.put("key1", "value2");
+//        MultiValuedMap<String, String> map = new ArrayListValuedHashMap<>();
+//
+//        map.put("key1", "value1");
+//
+//        map.put("key1", "value2");
+        HashMap<String, Integer> map = new HashMap<String, Integer>();
+        map.put("张无忌", 1);
+        map.put("赵敏", 2);
+        map.put("周芷若", 3);
+        map.put("小昭", 4);
+        map.put("谢逊", 5);
+        map.put("张三丰", 6);
+        map.put("殷素素", 7);
+        map.put("空见", 8);
+        for(Map.Entry<String, Integer> entry : map.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
         System.out.println(map);
 
         System.out.println("=\"");
