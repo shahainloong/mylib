@@ -4,748 +4,150 @@
 
 > 作者：Echo
 
+HashMap是基于哈希表的 Map 接口的实现。此实现提供所有可选的映射操作，并允许使用 null 值和 null 键。（除了非同步和允许使用 null 之外，HashMap 类与 Hashtable 大致相同。）此类不保证映射的顺序，特别是它不保证该顺序恒久不变。 
 
+此实现假定哈希函数将元素适当地分布在各桶之间，可为基本操作（get 和 put）提供稳定的性能。迭代 collection 视图所需的时间与 HashMap 实例的“容量”（桶的数量）及其大小（键-值映射关系数）成比例。所以，如果迭代性能很重要，则不要将初始容量设置得太高（或将加载因子设置得太低）。 
 
-## 源码分析
+HashMap 的实例有两个参数影响其性能：初始容量 和加载因子。容量 是哈希表中桶的数量，初始容量只是哈希表在创建时的容量。加载因子 是哈希表在其容量自动增加之前可以达到多满的一种尺度。当哈希表中的条目数超出了加载因子与当前容量的乘积时，则要对该哈希表进行 rehash 操作（即重建内部数据结构），从而哈希表将具有大约两倍的桶数。 
 
-### Diagram图
+通常，默认加载因子 (.75) 在时间和空间成本上寻求一种折衷。加载因子过高虽然减少了空间开销，但同时也增加了查询成本（在大多数 HashMap 类的操作中，包括 get 和 put 操作，都反映了这一点）。在设置初始容量时应该考虑到映射中所需的条目数及其加载因子，以便最大限度地减少 rehash 操作次数。如果初始容量大于最大条目数除以加载因子，则不会发生 rehash 操作。 
+
+如果很多映射关系要存储在 HashMap 实例中，则相对于按需执行自动的 rehash 操作以增大表的容量来说，使用足够大的初始容量创建它将使得映射关系能更有效地存储。 
+
+注意，此实现不是同步的。如果多个线程同时访问一个哈希映射，而其中至少一个线程从结构上修改了该映射，则它必须 保持外部同步。（结构上的修改是指添加或删除一个或多个映射关系的任何操作；仅改变与实例已经包含的键关联的值不是结构上的修改。）这一般通过对自然封装该映射的对象进行同步操作来完成。如果不存在这样的对象，则应该使用 Collections.synchronizedMap 方法来“包装”该映射。最好在创建时完成这一操作，以防止对映射进行意外的非同步访问，如下所示：
+
+   Map m = Collections.synchronizedMap(new HashMap(...));
+
+由所有此类的“collection 视图方法”所返回的迭代器都是fail-fast（快速失败） 的：在迭代器创建之后，如果从结构上对映射进行修改，除非通过迭代器本身的 remove 方法，其他任何时间任何方式的修改，迭代器都将抛出 ConcurrentModificationException。因此，面对并发的修改，迭代器很快就会完全失败，而不冒在将来不确定的时间发生任意不确定行为的风险。 
+
+注意，迭代器的fail-fast（快速失败）行为不能得到保证，一般来说，存在非同步的并发修改时，不可能作出任何坚决的保证。快速失败迭代器尽最大努力抛出 ConcurrentModificationException。因此，编写依赖于此异常的程序的做法是错误的，正确做法是：迭代器的fail-fast（快速失败）行为应该仅用于检测程序错误
+
+> 以上中文翻译摘自：https://tool.oschina.net/apidocs/apidoc?api=jdk-zh
+
+## Diagram图
 
 ![sap_cp_pe_apply_account_for_rjp](./../images/java/java_collection_array_list_diagram.png)
 
-### 源码解析
+## 数据结构
+
+HashMap底层采用的是数组和链表组合在一起的链表数组，Hash Map通过扰动函数得到key的hash值
+
+这个hash值并不是一般意义上hashCode值（key.hashCode()），先用key.hashCode()获取到key的hashCode值，再将这个hashCode值做一次扰动处理得到的值就作为这个HashMap的hash值
 
 ```java
-/**
- * ArrayList是一个实现了List接口的大小可调控的数组，它实现了List所有的可选择操作，并允许包含null在内的多有元素。除了实现List接口以外，这个类还提供了方法来操纵这个类内部使用的来存储列表的数组的大小（这个类大致和Vector相当，但是这个类是不同步的）。
- * size(),isEmpty(),get(),set(),iterator()和ListItr操作运行在固定时间的，add操作运行在摊余固定时间内，这也就是说，添加n个元素需要O（n）时间，粗略地讲，所有其他的操作都是线性运行地，与Linked List相比，它的常量因子更低。
- * 每个ArrayList实例都有一个容量，这个容量是list中用来存储元素的大小，它最少也是和list的大小一样大。在元素被添加到ArrayList中时，它的容量自动增长，添加一个元素除了有固定摊余时间这一事实外，增长策略的细节没有被指定。
- * 应用程序可以在添加大量元素之前通过ensureCapacity方法增加ArrayList的容量，这个过程可能会减少增量重新分配的大小。
- * 注意到这个ArrayList是不同步的，当多线程同时访问一个ArrayList的实例，并且至少有一个线程修改了这个list的结构，它必须在外部同步。（修改结构指的是：任何一项添加，删除一个或多个元素，或者显示改变备份数组大小，仅仅设定元素的值并不是改变结构）这一般是通过同步一些封装了list的对象来完成的。
- * 如果不存在这样的对象，那么list需要通过使用Collections.synchronizedList方法来包装起来，这最好在创建时做，这样可以防止意外地未同步访问list：
- *     List list = Collections.synchronizedList(new ArrayList(...));
- * 这个类的iterator和listIterator方法返回的iterators是fail-fast的，fail-fast指的是：
- * 在list的迭代器创建之后，除了迭代器自身的add和remove元素意外，以任何方式对list进行结构性修改，迭代器将会抛出一个ConcurrentModificationException异常，这样，在并发修改的情况下，迭代器会快速而干净地失败，而不是在将来会冒着有任意的，不确定的行为的风险。
- * 注意到迭代器的fail-fast行为并不能得到保证，通俗地讲，在未同步的并发修改时不可能做出肯定的保证，fail-fast尽最大努力抛出ConcurrentModificationException异常，因此，编写一个依赖这个异常来保证正确性的程序是错误的想法，迭代器的fail-fast行为应该仅仅用来侦测bugs。
- */ 
-public class ArrayList<E> extends AbstractList<E>
-        implements List<E>, RandomAccess, Cloneable, java.io.Serializable
-{
-    private static final long serialVersionUID = 8683452581122892189L;
+// 扰动函数就是HashMap的hash()方法
+static final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+}
+```
+
+然后用这个hash值对HashMap的桶（bucket）数量n取余，得到这个value对应桶中的位置，如果当前的位置没有元素的话就直接插入；如果存在元素，就判断存入元素value的值（hash值）和key是否相同，一样就覆盖，不一样要通过拉链法来解决冲突。
+
+**注意：**正常的取余操作是hash % n，但是这里采用的是（n -1）& hash，而且n必须是2的m次幂！
+
+## 源码解析
+
+### 成员变量
+
+```java
+public class HashMap<K,V> extends AbstractMap<K,V>
+    implements Map<K,V>, Cloneable, Serializable {
 
     /**
-     * 默认初始化的容量大小10.
+     * 默认初始容量 - 必须是2的整数次幂.
      */
-    private static final int DEFAULT_CAPACITY = 10;
+    static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 
     /**
-     * 共享空的数组实例（给空实例用的）.
+     * The maximum capacity, used if a higher value is implicitly specified
+     * by either of the constructors with arguments.
+     * MUST be a power of two <= 1<<30.
      */
-    private static final Object[] EMPTY_ELEMENTDATA = {};
+    static final int MAXIMUM_CAPACITY = 1 << 30;
 
     /**
-     * 用于默认大小的空实例的共享空数组实例.
-     * 我们把它和EMPTY_ELEMENTDATA区别出来，这样才知道当第一个元素被添加以后怎么扩容.
+     * The load factor used when none specified in constructor.
      */
-    private static final Object[] DEFAULTCAPACITY_EMPTY_ELEMENTDATA = {};
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
-     * 保存在ArrayList中的元素的数组缓存，其实就是保存ArrayList数据的数组，这个说是缓存，其实才是真正的数据内容.
-     * ArrayList的容量是这个数组缓存elementData的长度. Any
-     * 当以一个元素被添加进来时，任何的elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA的空ArrayList将会被扩展成elementData == DEFAULT_CAPACITY.
+     * The bin count threshold for using a tree rather than list for a
+     * bin.  Bins are converted to trees when adding an element to a
+     * bin with at least this many nodes. The value must be greater
+     * than 2 and should be at least 8 to mesh with assumptions in
+     * tree removal about conversion back to plain bins upon
+     * shrinkage.
      */
-    transient Object[] elementData; // non-private to simplify nested class access
+    static final int TREEIFY_THRESHOLD = 8;
 
     /**
-     * ArrayList的大小 (包含的元素数目).
-     *
-     * @serial
+     * The bin count threshold for untreeifying a (split) bin during a
+     * resize operation. Should be less than TREEIFY_THRESHOLD, and at
+     * most 6 to mesh with shrinkage detection under removal.
      */
-    private int size;
+    static final int UNTREEIFY_THRESHOLD = 6;
 
     /**
-     * 带有初始容量的构造函数，构造出一个空的list.
+     * The smallest table capacity for which bins may be treeified.
+     * (Otherwise the table is resized if too many nodes in a bin.)
+     * Should be at least 4 * TREEIFY_THRESHOLD to avoid conflicts
+     * between resizing and treeification thresholds.
      */
-    public ArrayList(int initialCapacity) {
-        if (initialCapacity > 0) {
-            this.elementData = new Object[initialCapacity];
-        } else if (initialCapacity == 0) {
-            this.elementData = EMPTY_ELEMENTDATA;
-        } else {
-            throw new IllegalArgumentException("Illegal Capacity: "+
-                                               initialCapacity);
+    static final int MIN_TREEIFY_CAPACITY = 64;
+
+    /**
+     * Basic hash bin node, used for most entries.  (See below for
+     * TreeNode subclass, and in LinkedHashMap for its Entry subclass.)
+     */
+    static class Node<K,V> implements Map.Entry<K,V> {
+        final int hash;
+        final K key;
+        V value;
+        Node<K,V> next;
+
+        Node(int hash, K key, V value, Node<K,V> next) {
+            this.hash = hash;
+            this.key = key;
+            this.value = value;
+            this.next = next;
         }
-    }
 
-    /**
-     * 构造一个初始容量为10的空list.
-     */
-    public ArrayList() {
-        this.elementData = DEFAULTCAPACITY_EMPTY_ELEMENTDATA;
-    }
+        public final K getKey()        { return key; }
+        public final V getValue()      { return value; }
+        public final String toString() { return key + "=" + value; }
 
-    /**
-     * 构造一个包含指定集合元素的list, 并由集合迭代器的顺序排列.
-     */
-    public ArrayList(Collection<? extends E> c) {
-        // 把集合c转换成数组
-        Object[] a = c.toArray();
-        // 集合c不为空
-        if ((size = a.length) != 0) {
-            // 集合c的类型是ArrayList类型
-            if (c.getClass() == ArrayList.class) {
-                elementData = a;
-            } else {
-                // 集合c的类型不是ArrayList类型，要用.copyOf方法来获取新的数组
-                elementData = Arrays.copyOf(a, size, Object[].class);
-            }
-        } else {
-            // 集合c为空的情况下用空数组代替.
-            elementData = EMPTY_ELEMENTDATA;
+        public final int hashCode() {
+            return Objects.hashCode(key) ^ Objects.hashCode(value);
         }
-    }
 
-    /**
-     * 修改ArrayList实例的容量使其为当前大小
-     * 应用程序使用这个操作来最小化ArrayList实例的存储.
-     */
-    public void trimToSize() {
-        modCount++;
-        if (size < elementData.length) {
-            elementData = (size == 0)
-              ? EMPTY_ELEMENTDATA
-              : Arrays.copyOf(elementData, size);
+        public final V setValue(V newValue) {
+            V oldValue = value;
+            value = newValue;
+            return oldValue;
         }
-    }
-    
 
-    /**
-     * 这个是ArrayList的扩容机制
-     * 增加Array List实例的容量,
-     * 如有必要，确保实例至少能容纳这个由最小容量指定的元素的数目
-     */
-    public void ensureCapacity(int minCapacity) {
-        int minExpand = (elementData != DEFAULTCAPACITY_EMPTY_ELEMENTDATA)
-            // any size if not default element table
-            ? 0
-            // larger than default for default empty table. It's already
-            // supposed to be at default size.
-            : DEFAULT_CAPACITY;
-
-        if (minCapacity > minExpand) {
-            ensureExplicitCapacity(minCapacity);
-        }
-    }
-
-    // 计算最小扩容量
-    private static int calculateCapacity(Object[] elementData, int minCapacity) {
-        if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-            return Math.max(DEFAULT_CAPACITY, minCapacity);
-        }
-        return minCapacity;
-    }
-
-    private void ensureCapacityInternal(int minCapacity) {
-        ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
-    }
-
-    // ensureCapacity(int minCapacity)调用这个方法，
-    private void ensureExplicitCapacity(int minCapacity) {
-        modCount++;
-
-        // overflow-conscious code
-        if (minCapacity - elementData.length > 0)
-            grow(minCapacity);
-    }
-
-    /**
-     * 分配的数组的最大大小.
-     * Some VMs reserve some header words in an array.
-     * Attempts to allocate larger arrays may result in
-     * OutOfMemoryError: Requested array size exceeds VM limit
-     */
-    private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
-
-    /**
-     * 这个是扩容的核心方法，增加容量使得这个arraylist可以容纳指定的最小容量参数的元素数目.
-     */
-    private void grow(int minCapacity) {
-        // overflow-conscious code
-        // oldCapacity是原来的容量
-        int oldCapacity = elementData.length;
-        // 左移代表除以2，就是说newCapacity现在是oldCapacity的1.5倍容量大小
-        int newCapacity = oldCapacity + (oldCapacity >> 1);
-        // 如果newCapacity还是比minCapacity小，就用minCapacity代替newCapacity
-        if (newCapacity - minCapacity < 0)
-            newCapacity = minCapacity;
-        // 为了防止newCapacity无限大，要用hugeCapacity函数控制其大小
-        if (newCapacity - MAX_ARRAY_SIZE > 0)
-            // 要是newCapacity超过了int最大值，newCapacity就是Integer.MAX_VALUE，没超过就是MAX_ARRAY_SIZE
-            newCapacity = hugeCapacity(minCapacity);
-        // minCapacity is usually close to size, so this is a win:
-        elementData = Arrays.copyOf(elementData, newCapacity);
-    }
-
-    // grow函数调用的方法，比较minCapacity和MAX_ARRAY_SIZE的大小用
-    private static int hugeCapacity(int minCapacity) {
-        if (minCapacity < 0) // overflow
-            throw new OutOfMemoryError();
-        return (minCapacity > MAX_ARRAY_SIZE) ?
-            Integer.MAX_VALUE :
-            MAX_ARRAY_SIZE;
-    }
-
-    /**
-     * 返回这个数组的元素个数.
-     */
-    public int size() {
-        return size;
-    }
-
-    /**
-     * 判断这个list是否为空.
-     */
-    public boolean isEmpty() {
-        return size == 0;
-    }
-
-    /**
-     * 如果list包含指定的元素就返回true.
-     */
-    public boolean contains(Object o) {
-        return indexOf(o) >= 0;
-    }
-
-    /**
-     * 返回指定元素在list中第一次出现的索引，-1表示没有这个元素.
-     */
-    public int indexOf(Object o) {
-        if (o == null) {
-            for (int i = 0; i < size; i++)
-                if (elementData[i]==null)
-                    return i;
-        } else {
-            for (int i = 0; i < size; i++)
-                if (o.equals(elementData[i]))
-                    return i;
-        }
-        return -1;
-    }
-
-    /**
-     * 和indexOf相反，返回指定元素在list中最后出现的索引，-1表示没有.
-     */
-    public int lastIndexOf(Object o) {
-        if (o == null) {
-            for (int i = size-1; i >= 0; i--)
-                if (elementData[i]==null)
-                    return i;
-        } else {
-            for (int i = size-1; i >= 0; i--)
-                if (o.equals(elementData[i]))
-                    return i;
-        }
-        return -1;
-    }
-
-    /**
-     * 返回这个ArrayList实例的浅拷贝，元素本身不会被拷贝.
-     */
-    public Object clone() {
-        try {
-            ArrayList<?> v = (ArrayList<?>) super.clone();
-            v.elementData = Arrays.copyOf(elementData, size);
-            v.modCount = 0;
-            return v;
-        } catch (CloneNotSupportedException e) {
-            // this shouldn't happen, since we are Cloneable
-            throw new InternalError(e);
-        }
-    }
-
-    /**
-     * 从第一个到最后一个，以正确的顺序返回一个包含list中所有元素的数组.
-     */
-    public Object[] toArray() {
-        return Arrays.copyOf(elementData, size);
-    }
-
-    /**
-     * Returns an array containing all of the elements in this list in proper
-     * sequence (from first to last element); the runtime type of the returned
-     * array is that of the specified array.  If the list fits in the
-     * specified array, it is returned therein.  Otherwise, a new array is
-     * allocated with the runtime type of the specified array and the size of
-     * this list.
-     *
-     * <p>If the list fits in the specified array with room to spare
-     * (i.e., the array has more elements than the list), the element in
-     * the array immediately following the end of the collection is set to
-     * <tt>null</tt>.  (This is useful in determining the length of the
-     * list <i>only</i> if the caller knows that the list does not contain
-     * any null elements.)
-     *
-     * @param a the array into which the elements of the list are to
-     *          be stored, if it is big enough; otherwise, a new array of the
-     *          same runtime type is allocated for this purpose.
-     * @return an array containing the elements of the list
-     * @throws ArrayStoreException if the runtime type of the specified array
-     *         is not a supertype of the runtime type of every element in
-     *         this list
-     * @throws NullPointerException if the specified array is null
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T[] toArray(T[] a) {
-        if (a.length < size)
-            // Make a new array of a's runtime type, but my contents:
-            return (T[]) Arrays.copyOf(elementData, size, a.getClass());
-        System.arraycopy(elementData, 0, a, 0, size);
-        if (a.length > size)
-            a[size] = null;
-        return a;
-    }
-
-    // Positional Access Operations
-
-    @SuppressWarnings("unchecked")
-    E elementData(int index) {
-        return (E) elementData[index];
-    }
-
-    /**
-     * 返回list中指定位置的元素.
-     */
-    public E get(int index) {
-        // 检查index有没有超出list大小size的界限
-        rangeCheck(index);
-
-        return elementData(index);
-    }
-
-    /**
-     * 用指定的元素代替list中指定位置的元素.
-     */
-    public E set(int index, E element) {
-        rangeCheck(index);
-
-        E oldValue = elementData(index);
-        elementData[index] = element;
-        // 返回的是旧的元素
-        return oldValue;
-    }
-
-    /**
-     * 在list最后添加指定的元素.
-     */
-    public boolean add(E e) {
-        ensureCapacityInternal(size + 1);  // Increments modCount!!
-        elementData[size++] = e;
-        return true;
-    }
-
-    /**
-     * Inserts the specified element at the specified position in this在list的指定位置插入指定元素，移动当前元素和其他元素到正确的地方。
-     */
-    public void add(int index, E element) {
-        // 检擦index在0到list的size之间
-        rangeCheckForAdd(index);
-
-        ensureCapacityInternal(size + 1);  // Increments modCount!!
-        // 把index后面的element往后移
-        System.arraycopy(elementData, index, elementData, index + 1,
-                         size - index);
-        elementData[index] = element;
-        size++;
-    }
-
-    /**
-     * 移除list中指定位置上的元素，后面的元素要左移，返回的是list中删除的元素。
-     */
-    public E remove(int index) {
-        rangeCheck(index);
-
-        modCount++;
-        E oldValue = elementData(index);
-
-        int numMoved = size - index - 1;
-        if (numMoved > 0)
-            System.arraycopy(elementData, index+1, elementData, index,
-                             numMoved);
-        elementData[--size] = null; // clear to let GC do its work
-
-        return oldValue;
-    }
-
-    /**
-     * 从list中删除第一个出现的指定元素，如果不存在，list不会变化。
-     */
-    public boolean remove(Object o) {
-        if (o == null) {
-            for (int index = 0; index < size; index++)
-                if (elementData[index] == null) {
-                    fastRemove(index);
+        public final boolean equals(Object o) {
+            if (o == this)
+                return true;
+            if (o instanceof Map.Entry) {
+                Map.Entry<?,?> e = (Map.Entry<?,?>)o;
+                if (Objects.equals(key, e.getKey()) &&
+                    Objects.equals(value, e.getValue()))
                     return true;
-                }
-        } else {
-            for (int index = 0; index < size; index++)
-                if (o.equals(elementData[index])) {
-                    fastRemove(index);
-                    return true;
-                }
-        }
-        return false;
-    }
-
-    /*
-     * 私有方法，是remove的变种版本，跳过了边界检查，并且不会有返回值.
-     */
-    private void fastRemove(int index) {
-        modCount++;
-        int numMoved = size - index - 1;
-        if (numMoved > 0)
-            System.arraycopy(elementData, index+1, elementData, index,
-                             numMoved);
-        elementData[--size] = null; // clear to let GC do its work
-    }
-
-    /**
-     * 删除list的所有元素，list将被清空.
-     */
-    public void clear() {
-        modCount++;
-
-        // clear to let GC do its work
-        for (int i = 0; i < size; i++)
-            elementData[i] = null;
-
-        size = 0;
-    }
-
-    /**
-     * 按照指定集合的迭代器在list末尾添加指定的集合.
-     */
-    public boolean addAll(Collection<? extends E> c) {
-        Object[] a = c.toArray();
-        int numNew = a.length;
-        ensureCapacityInternal(size + numNew);  // Increments modCount
-        System.arraycopy(a, 0, elementData, size, numNew);
-        size += numNew;
-        return numNew != 0;
-    }
-
-    /**
-     * 按照指定集合的迭代器在指定的位置，在list中插入指定集合的所有元素.  右移当前元素及后面的元素
-     */
-    public boolean addAll(int index, Collection<? extends E> c) {
-        rangeCheckForAdd(index);
-
-        Object[] a = c.toArray();
-        int numNew = a.length;
-        ensureCapacityInternal(size + numNew);  // Increments modCount
-
-        int numMoved = size - index;
-        if (numMoved > 0)
-            System.arraycopy(elementData, index, elementData, index + numNew,
-                             numMoved);
-
-        System.arraycopy(a, 0, elementData, index, numNew);
-        size += numNew;
-        return numNew != 0;
-    }
-
-    /**
-     * 删除[fromIndex, toIndex)内的所有元素，并将其他后续元素往左移
-     */
-    protected void removeRange(int fromIndex, int toIndex) {
-        modCount++;
-        int numMoved = size - toIndex;
-        System.arraycopy(elementData, toIndex, elementData, fromIndex,
-                         numMoved);
-
-        // clear to let GC do its work
-        int newSize = size - (toIndex-fromIndex);
-        for (int i = newSize; i < size; i++) {
-            elementData[i] = null;
-        }
-        size = newSize;
-    }
-
-    /**
-     * 检查index是否在list的数组大小范围内.
-     */
-    private void rangeCheck(int index) {
-        if (index >= size)
-            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
-    }
-
-    /**
-     * 供add和addAll使用的范围检查方法版本.
-     */
-    private void rangeCheckForAdd(int index) {
-        if (index > size || index < 0)
-            throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
-    }
-
-    /**
-     * 构造越界信息的字符串拼接信息.
-     */
-    private String outOfBoundsMsg(int index) {
-        return "Index: "+index+", Size: "+size;
-    }
-
-    /**
-     * 删除list中集合c包含的所有元素.
-     */
-    public boolean removeAll(Collection<?> c) {
-        Objects.requireNonNull(c);
-        return batchRemove(c, false);
-    }
-
-    /**
-     * 仅仅保留list中集合c的所有元素，换言之，就是删除list中不在集合c中的元素.
-     */
-    public boolean retainAll(Collection<?> c) {
-        Objects.requireNonNull(c);
-        return batchRemove(c, true);
-    }
-
-    private boolean batchRemove(Collection<?> c, boolean complement) {
-        final Object[] elementData = this.elementData;
-        int r = 0, w = 0;
-        boolean modified = false;
-        try {
-            for (; r < size; r++)
-                if (c.contains(elementData[r]) == complement)
-                    elementData[w++] = elementData[r];
-        } finally {
-            // Preserve behavioral compatibility with AbstractCollection,
-            // even if c.contains() throws.
-            if (r != size) {
-                System.arraycopy(elementData, r,
-                                 elementData, w,
-                                 size - r);
-                w += size - r;
             }
-            if (w != size) {
-                // clear to let GC do its work
-                for (int i = w; i < size; i++)
-                    elementData[i] = null;
-                modCount += size - w;
-                size = w;
-                modified = true;
-            }
-        }
-        return modified;
-    }
-
-    /**
-     * 保存ArrayList实例的状态到stream里，也就是说序列化它.
-     */
-    private void writeObject(java.io.ObjectOutputStream s)
-        throws java.io.IOException{
-        // Write out element count, and any hidden stuff
-        int expectedModCount = modCount;
-        s.defaultWriteObject();
-
-        // Write out size as capacity for behavioural compatibility with clone()
-        s.writeInt(size);
-
-        // Write out all elements in the proper order.
-        for (int i=0; i<size; i++) {
-            s.writeObject(elementData[i]);
-        }
-
-        if (modCount != expectedModCount) {
-            throw new ConcurrentModificationException();
+            return false;
         }
     }
-
-    /**
-     * 从一个stream中重组ArrayList实例（反序列化）.
-     */
-    private void readObject(java.io.ObjectInputStream s)
-        throws java.io.IOException, ClassNotFoundException {
-        elementData = EMPTY_ELEMENTDATA;
-
-        // Read in size, and any hidden stuff
-        s.defaultReadObject();
-
-        // Read in capacity
-        s.readInt(); // ignored
-
-        if (size > 0) {
-            // be like clone(), allocate array based upon size not capacity
-            int capacity = calculateCapacity(elementData, size);
-            SharedSecrets.getJavaOISAccess().checkArray(s, Object[].class, capacity);
-            ensureCapacityInternal(size);
-
-            Object[] a = elementData;
-            // Read in all elements in the proper order.
-            for (int i=0; i<size; i++) {
-                a[i] = s.readObject();
-            }
-        }
-    }
-
-    /**
-     * 从list的指定位置开始，以正确的顺序返回list中元素的list迭代器.
-     * 指定的索引意味着第一个元素的返回值会由初始调用指向next，初始调用pre将会返回指定index-1的元素
-     * 返回的list迭代器是fail-fast的
-     */
-    public ListIterator<E> listIterator(int index) {
-        if (index < 0 || index > size)
-            throw new IndexOutOfBoundsException("Index: "+index);
-        return new ListItr(index);
-    }
-
-    /**
-     * 按合适的顺序返回list的迭代器.
-     * 返回的list迭代器是fail-fast的
-     */
-    public ListIterator<E> listIterator() {
-        return new ListItr(0);
-    }
-
-    /**
-     * 按合适的顺序返回list的迭代器.
-     * 返回的list迭代器是fail-fast的
-     */
-    public Iterator<E> iterator() {
-        return new Itr();
-    }
-...
-}
 ```
 
-## 扩容机制
+## 相关概念
 
-### 逻辑流程
+### 位运算&取余
 
-Array List有三种构造方法，无参构造函数，和两个带参数的构造函数，以无参构造函数为例：
 
-```java
-List<String> list = new ArrayList<>();
-list.add("hello");
-```
 
-ArrayList.add()
+## 参考
 
-第一次添加hello时，size是0。
-
-```java
-/**
- * 在list最后添加指定的元素.
- */
-public boolean add(E e) {
-    ensureCapacityInternal(size + 1);  // Increments modCount!!
-    elementData[size++] = e;
-    return true;
-}
-```
-
-ArrayList.ensureCapacityInternal()
-
-minCapacity是1，calculateCapacity计算出来的minCapacity是10。
-
-```java
-private void ensureCapacityInternal(int minCapacity) {
-    ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
-}
-
-// 计算最小扩容量
-private static int calculateCapacity(Object[] elementData, int minCapacity) {
-    if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
-        return Math.max(DEFAULT_CAPACITY, minCapacity);
-    }
-    return minCapacity;
-}
-
-```
-
-ArrayList.ensureExplicitCapacity()
-
-第一次add时，要走grow(10)
-
-```java
-
-// ensureCapacity(int minCapacity)调用这个方法，
-private void ensureExplicitCapacity(int minCapacity) {
-    modCount++;
-
-    // overflow-conscious code
-    if (minCapacity - elementData.length > 0)
-        grow(minCapacity);
-}
-```
-ArrayList.grow()
-
-第一次add时，oldCapacity和newCapacity都是0，所以扩容成默认的10。
-
-```java
-/**
- * 这个是扩容的核心方法，增加容量使得这个arraylist可以容纳指定的最小容量参数的元素数目.
- */
-private void grow(int minCapacity) {
-    // overflow-conscious code
-    // oldCapacity是原来的容量
-    int oldCapacity = elementData.length;
-    // 左移代表除以2，就是说newCapacity现在是oldCapacity的1.5倍容量大小
-    int newCapacity = oldCapacity + (oldCapacity >> 1);
-    // 如果newCapacity还是比minCapacity小，就用minCapacity代替newCapacity
-    if (newCapacity - minCapacity < 0)
-        newCapacity = minCapacity;
-    // 为了防止newCapacity无限大，要用hugeCapacity函数控制其大小
-    if (newCapacity - MAX_ARRAY_SIZE > 0)
-        // 要是newCapacity超过了int最大值，newCapacity就是Integer.MAX_VALUE，没超过就是MAX_ARRAY_SIZE
-        newCapacity = hugeCapacity(minCapacity);
-    // minCapacity is usually close to size, so this is a win:
-    elementData = Arrays.copyOf(elementData, newCapacity);
-}
-
-// minCapacity大于2147483639才会用到
-private static int hugeCapacity(int minCapacity) {
-    if (minCapacity < 0) // overflow
-        throw new OutOfMemoryError();
-    return (minCapacity > MAX_ARRAY_SIZE) ?
-        Integer.MAX_VALUE :
-    MAX_ARRAY_SIZE;
-}
-```
-Arrays.copyOf()
-
-```java
-public static <T> T[] copyOf(T[] original, int newLength) {
-    return (T[]) copyOf(original, newLength, original.getClass());
-}
-public static <T,U> T[] copyOf(U[] original, int newLength, Class<? extends T[]> newType) {
-        @SuppressWarnings("unchecked")
-        T[] copy = ((Object)newType == (Object)Object[].class)
-            ? (T[]) new Object[newLength]
-            : (T[]) Array.newInstance(newType.getComponentType(), newLength);
-        System.arraycopy(original, 0, copy, 0,
-                         Math.min(original.length, newLength));
-        return copy;
-    }
-```
-
-System.arraycopy()
-
-```java
-    public static native void arraycopy(Object src,  int  srcPos,
-                                        Object dest, int destPos,
-                                        int length);
-```
-
-分析
-
-| add次数                | 1                                                            | 2          | 3          |
-| ---------------------- | ------------------------------------------------------------ | ---------- | ---------- |
-| ensureCapacityInternal | size+1=1                                                     | 2          | 3          |
-| calculateCapacity      | elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA，返回Math.max(DEFAULT_CAPACITY, minCapacity)的值10 | 2          | 3          |
-| ensureExplicitCapacity | minCapacity - elementData.length>0，进入grow()               | 不进入grow | 不进入grow |
-| grow()                 | newCapacity - minCapacity < 0，扩容成10                      | -          | -          |
-
-第一次add，会进入ensureCapacityInternal(1)，先通过calculateCapacity(1)计算出需要的容量，此时elementData还是默认的空实例，所以取得Math.max(DEFAULT_CAPACITY, minCapacity)的值10，进入ensureExplicitCapacity(10)，10- elementData.length > 0就要进入grow(10)，这里面newCapacity要扩容成oldCapacity的1.5倍，在和10比较，10 - newCapacity > 0，开始用Arrays.copyOf(elementData, 10)扩容
-
-第二次add，会进入ensureCapacityInternal(2)，先通过calculateCapacity(1)计算出需要的容量，此时elementData不是默认的空实例，所以直接取值2，进入ensureExplicitCapacity(2)，此时elementData.length已经扩容成了10，2- elementData.length < 0就不会进入grow(minCapacity)进行扩容了。
-
-第三次add，第四次add情况和第二次相同，知道第十一次时，才会再次进入grow(minCapacity)进行扩容。
+- https://tool.oschina.net/apidocs/apidoc?api=jdk-zh
+- http://www.ciphermagic.cn/use-and-to-module.html
