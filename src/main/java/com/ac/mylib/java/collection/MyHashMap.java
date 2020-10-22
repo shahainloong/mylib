@@ -17,16 +17,16 @@ public class MyHashMap {
 //        map.put("key1", "value1");
 //
 //        map.put("key1", "value2");
-        HashMap<String, Integer> map = new HashMap<String, Integer>();
-        map.put("张无忌", 1);
-        map.put("赵敏", 2);
-        map.put("周芷若", 3);
-        map.put("小昭", 4);
-        map.put("谢逊", 5);
-        map.put("张三丰", 6);
-        map.put("殷素素", 7);
-        map.put("空见", 8);
-        for(Map.Entry<String, Integer> entry : map.entrySet()) {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("张无忌", "明教");
+        map.put("赵敏", "朝廷");
+        map.put("周芷若", "峨嵋派");
+        map.put("小昭", "波斯总教");
+        map.put("谢逊", "明教");
+        map.put("张三丰", "武当派");
+        map.put("殷素素", "天鹰教");
+        map.put("空见", "少林");
+        for(Map.Entry<String, String> entry : map.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
         System.out.println(map);
