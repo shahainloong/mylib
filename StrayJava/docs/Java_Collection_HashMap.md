@@ -44,7 +44,7 @@ static final int hash(Object key) {
 
 然后用这个hash值对HashMap的桶（bucket）数量n取余，得到这个value对应桶中的位置，如果当前的位置没有元素的话就直接插入；如果存在元素，就判断存入元素value的值（hash值）和key是否相同，一样就覆盖，不一样要通过拉链法来解决冲突。
 
-**注意：**正常的取余操作是hash % n，但是这里采用的是（n -1）& hash，而且n必须是2的m次幂！
+**注意：**正常的取余操作是hash  %  n，但是这里采用的是（n -1）& hash，而且n必须是2的m次幂！
 
 ## 源码解析
 
@@ -151,3 +151,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
 - https://tool.oschina.net/apidocs/apidoc?api=jdk-zh
 - http://www.ciphermagic.cn/use-and-to-module.html
+- [https://github.com/Snailclimb/JavaGuide/blob/master/docs/java/collection/HashMap(JDK1.8)%E6%BA%90%E7%A0%81%2B%E5%BA%95%E5%B1%82%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90.md](https://github.com/Snailclimb/JavaGuide/blob/master/docs/java/collection/HashMap(JDK1.8)源码%2B底层数据结构分析.md)
+- https://www.fangzhipeng.com/javainterview/2019/03/15/collections-hashmap.html
+- http://www.justdojava.com/2019/03/26/java-HashMap/
+
+
+
