@@ -60,14 +60,12 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
 
     /**
-     * The maximum capacity, used if a higher value is implicitly specified
-     * by either of the constructors with arguments.
-     * MUST be a power of two <= 1<<30.
+     * 使用有参构造函数时，最大的容量，必须小于2的30次幂.
      */
     static final int MAXIMUM_CAPACITY = 1 << 30;
 
     /**
-     * The load factor used when none specified in constructor.
+     * 构造函数中的默认负载因子.
      */
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
