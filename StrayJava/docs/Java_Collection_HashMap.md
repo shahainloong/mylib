@@ -26,7 +26,7 @@ HashMap 的实例有两个参数影响其性能：初始容量 和加载因子�
 
 ## Diagram图
 
-![sap_cp_pe_apply_account_for_rjp](./../images/java/java_collection_array_list_diagram.png)
+![sap_cp_pe_apply_account_for_rjp](./../images/java/java_collection_hashmap_diagram.png)
 
 ## 数据结构
 
@@ -70,73 +70,117 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
     /**
-     * The bin count threshold for using a tree rather than list for a
-     * bin.  Bins are converted to trees when adding an element to a
-     * bin with at least this many nodes. The value must be greater
-     * than 2 and should be at least 8 to mesh with assumptions in
-     * tree removal about conversion back to plain bins upon
-     * shrinkage.
+     * 桶中节点转化成红黑树的阈值，要大于2，大于8时转红黑树.
      */
     static final int TREEIFY_THRESHOLD = 8;
 
     /**
-     * The bin count threshold for untreeifying a (split) bin during a
-     * resize operation. Should be less than TREEIFY_THRESHOLD, and at
-     * most 6 to mesh with shrinkage detection under removal.
+     * 红黑树的节点数阈值，小于6时红黑树转链表.
      */
     static final int UNTREEIFY_THRESHOLD = 6;
 
     /**
-     * The smallest table capacity for which bins may be treeified.
-     * (Otherwise the table is resized if too many nodes in a bin.)
-     * Should be at least 4 * TREEIFY_THRESHOLD to avoid conflicts
-     * between resizing and treeification thresholds.
+     * 链转树的最小table容量，桶里有太多节点的话会扩容，至少是4 x TREEIFY_THRESHOLD才能避免冲突.
      */
     static final int MIN_TREEIFY_CAPACITY = 64;
+    
+    /**
+     * The table, initialized on first use, and resized as
+     * necessary. When allocated, length is always a power of two.
+     * (We also tolerate length zero in some operations to allow
+     * bootstrapping mechanics that are currently not needed.)
+     * 初始化时的table，必要时会扩容，分配内存时长度总是2的幂次方，这个是存放元素的数组。
+     */
+    transient Node<K,V>[] table;
 
     /**
-     * Basic hash bin node, used for most entries.  (See below for
-     * TreeNode subclass, and in LinkedHashMap for its Entry subclass.)
+     * Holds cached entrySet(). Note that AbstractMap fields are used
+     * for keySet() and values().
+     * 持有的缓存键值对，注意有两个来自AbstractMap的字段keySet() 和 values()
      */
-    static class Node<K,V> implements Map.Entry<K,V> {
-        final int hash;
-        final K key;
-        V value;
-        Node<K,V> next;
+    transient Set<Map.Entry<K,V>> entrySet;
 
-        Node(int hash, K key, V value, Node<K,V> next) {
-            this.hash = hash;
-            this.key = key;
-            this.value = value;
-            this.next = next;
-        }
+    /**
+     * The number of key-value mappings contained in this map.
+     * 键值对的个数，不等于数组的长度！
+     */
+    transient int size;
 
-        public final K getKey()        { return key; }
-        public final V getValue()      { return value; }
-        public final String toString() { return key + "=" + value; }
+    /**
+     * The number of times this HashMap has been structurally modified
+     * Structural modifications are those that change the number of mappings in
+     * the HashMap or otherwise modify its internal structure (e.g.,
+     * rehash).  This field is used to make iterators on Collection-views of
+     * the HashMap fail-fast.  (See ConcurrentModificationException).
+     * HashMap被结构性修改的次数，这个字段是用来做HashMap的集合视图的迭代器的fail-fast的。
+     */
+    transient int modCount;
 
-        public final int hashCode() {
-            return Objects.hashCode(key) ^ Objects.hashCode(value);
-        }
+    /**
+     * The next size value at which to resize (capacity * load factor).
+     * 扩容阈值，当实际大小超过capacity * load factor时扩容
+    int threshold;
 
-        public final V setValue(V newValue) {
-            V oldValue = value;
-            value = newValue;
-            return oldValue;
-        }
+    /**
+     * The load factor for the hash table.
+     * 负载因子
+     */
+    final float loadFactor;
+```
 
-        public final boolean equals(Object o) {
-            if (o == this)
-                return true;
-            if (o instanceof Map.Entry) {
-                Map.Entry<?,?> e = (Map.Entry<?,?>)o;
-                if (Objects.equals(key, e.getKey()) &&
-                    Objects.equals(value, e.getValue()))
-                    return true;
-            }
-            return false;
-        }
-    }
+### 内部静态类
+
+### 构造方法
+
+```java
+/**
+ * Constructs an empty <tt>HashMap</tt> with the default initial capacity
+ * (16) and the default load factor (0.75).
+ * 使用默认容量16和0.75作为负载因子构造一个空的HashMap。
+ */
+public HashMap() {
+    this.loadFactor = DEFAULT_LOAD_FACTOR; // all other fields defaulted
+}
+/**
+ * Constructs an empty <tt>HashMap</tt> with the specified initial
+ * capacity and load factor.
+ * 通过指定的容量和负载因子构造一个空的HashMap。
+ */
+public HashMap(int initialCapacity, float loadFactor) {
+    if (initialCapacity < 0)
+        throw new IllegalArgumentException("Illegal initial capacity: " +
+                                           initialCapacity);
+    if (initialCapacity > MAXIMUM_CAPACITY)
+        initialCapacity = MAXIMUM_CAPACITY;
+    if (loadFactor <= 0 || Float.isNaN(loadFactor))
+        throw new IllegalArgumentException("Illegal load factor: " +
+                                           loadFactor);
+    this.loadFactor = loadFactor;
+    this.threshold = tableSizeFor(initialCapacity);
+}
+
+/**
+ * Constructs an empty <tt>HashMap</tt> with the specified initial
+ * capacity and the default load factor (0.75).
+ * 通过一个指定的容量，使用默认的负载因子0.75构造一个空的HashMap.
+ */
+public HashMap(int initialCapacity) {
+    this(initialCapacity, DEFAULT_LOAD_FACTOR);
+}
+
+
+
+/**
+ * Constructs a new <tt>HashMap</tt> with the same mappings as the
+ * specified <tt>Map</tt>.  The <tt>HashMap</tt> is created with
+ * default load factor (0.75) and an initial capacity sufficient to
+ * hold the mappings in the specified <tt>Map</tt>.
+ * 通过一个指定的Map构造一个新的HashMap。
+ */
+public HashMap(Map<? extends K, ? extends V> m) {
+    this.loadFactor = DEFAULT_LOAD_FACTOR;
+    putMapEntries(m, false);
+}
 ```
 
 ## 相关概念
