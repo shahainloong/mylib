@@ -81,6 +81,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
 
     /**
      * 链转树的最小table容量，桶里有太多节点的话会扩容，至少是4 x TREEIFY_THRESHOLD才能避免冲突.
+     * 注意：并不是链表长度大于8就转树，大于8小于64时先扩容，大于64才会转红黑树！！！
      */
     static final int MIN_TREEIFY_CAPACITY = 64;
     
@@ -168,8 +169,6 @@ public HashMap(int initialCapacity) {
     this(initialCapacity, DEFAULT_LOAD_FACTOR);
 }
 
-
-
 /**
  * Constructs a new <tt>HashMap</tt> with the same mappings as the
  * specified <tt>Map</tt>.  The <tt>HashMap</tt> is created with
@@ -182,6 +181,105 @@ public HashMap(Map<? extends K, ? extends V> m) {
     putMapEntries(m, false);
 }
 ```
+
+### put函数
+
+我们只能使用put方法，putVal没有暴露出来给我们使用。
+
+```java
+/**
+ * Associates the specified value with the specified key in this map.
+ * If the map previously contained a mapping for the key, the old
+ * value is replaced.
+ *
+ * @param key key with which the specified value is to be associated
+ * @param value value to be associated with the specified key
+ * @return the previous value associated with <tt>key</tt>, or
+ *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
+ *         (A <tt>null</tt> return can also indicate that the map
+ *         previously associated <tt>null</tt> with <tt>key</tt>.)
+ */
+public V put(K key, V value) {
+    return putVal(hash(key), key, value, false, true);
+}
+
+/**
+ * Implements Map.put and related methods.
+ *
+ * @param hash hash for key
+ * @param key the key
+ * @param value the value to put
+ * @param onlyIfAbsent if true, don't change existing value
+ * @param evict if false, the table is in creation mode.
+ * @return previous value, or null if none
+ */
+final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+               boolean evict) {
+    Node<K,V>[] tab; Node<K,V> p; int n, i;
+    // table为空或者长度为0，进行扩容
+    if ((tab = table) == null || (n = tab.length) == 0)
+        n = (tab = resize()).length;
+    // hash & n取余确定元素在桶中的位置index
+    if ((p = tab[i = (n - 1) & hash]) == null)
+        // 桶是空的，生成一个节点放在桶里，此时该节点是放在数组里的
+        tab[i] = newNode(hash, key, value, null);
+    else {
+        // 桶不是空的
+        Node<K,V> e; K k;
+        // p是既存的节点，当
+        // 1. p的key和需要存入的key或者，需要存入的key不为空且这个key等于既存的key时
+        // 2. 需要存入的key的hash值和既存的hash值相等时
+        if (p.hash == hash &&
+            ((k = p.key) == key || (key != null && key.equals(k))))
+            // 1，2同时满足时，将e指向p，用e来表示
+            e = p;
+        // p是红黑树时候的判断，p是红黑树表示节点数已经大于8了。
+        else if (p instanceof TreeNode)
+            e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+        // 链表结构
+        else {
+            for (int binCount = 0; ; ++binCount) {
+                // 既存的节点后面没有节点，可以直接插入新的节点
+                if ((e = p.next) == null) {
+                    p.next = newNode(hash, key, value, null);
+                    // 链表数量大于阈值8，需要树型话，注意并不是转成红黑树，小于64的话是resize扩容，大于64才会转成红黑树！
+                    if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                        treeifyBin(tab, hash);
+                    break;
+                }
+                // 此时e就是p，需要存入的hash和既存的hash值相等，key也相等的话就结束
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    break;
+                // 用于遍历桶中的链表，与前面的e = p.next组合，可以遍历链表，这步很厉害
+                p = e;
+            }
+        }
+        // key值和key的hash值相等的时候
+        if (e != null) { // existing mapping for key
+            // 既存的value值
+            V oldValue = e.value;
+            // onlyIfAbsent为false和oldValue为空时
+            if (!onlyIfAbsent || oldValue == null)
+                // 覆盖旧值
+                e.value = value;
+            // 存在LinkedHashMap中的访问后回调函数
+            afterNodeAccess(e);
+            return oldValue;
+        }
+    }
+    // 结构性修改变量记录值加1
+    ++modCount;
+    // 实际大小超过阈值，要扩容
+    if (++size > threshold)
+        resize();
+    // 存在LinkedHashMap中的插入后回调函数
+    afterNodeInsertion(evict);
+    return null;
+}
+```
+
+
 
 ## 相关概念
 
