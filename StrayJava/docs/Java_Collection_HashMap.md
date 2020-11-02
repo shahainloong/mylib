@@ -394,7 +394,7 @@ final Node<K,V>[] resize() {
                     Node<K,V> next;
                     do {
                         next = e.next;
-                        // 原索引
+                        // 原索引，oldCap是2次幂，以16扩成32为例，0001 0000和e.hash做&运算的时候，只要看低五位就行了，第四位全是0不需要考虑，倒数第五位是1，所以e.hash的倒数第五位就至关重要了，是0的话e.hash & oldCap就等于0，否则等于1，这个设计很巧妙，看懂！！！ 
                         if ((e.hash & oldCap) == 0) {
                             if (loTail == null)
                                 loHead = e;
@@ -428,6 +428,86 @@ final Node<K,V>[] resize() {
     return newTab;
 }
 ```
+
+举例：
+
+```java
+HashMap<String, String> map = new HashMap<String, String>();
+        map.put("张无忌", "明教");
+        map.put("赵敏", "朝廷");
+        map.put("周芷若", "峨嵋派");
+        map.put("小昭", "波斯总教");
+        map.put("谢逊", "明教");
+        map.put("张三丰", "武当派");
+        map.put("殷素素", "天鹰教");
+        map.put("空见", "少林");
+//        map.put("空见1", "少林");
+//        map.put("空见2", "少林");
+//        map.put("空见3", "少林");
+//        map.put("空见4", "少林");
+//        map.put("空见5", "少林");
+//        map.put("空见6", "少林");
+//        map.put("空见7", "少林");
+//        map.put("空见8", "少林");
+//        map.put("空见9", "少林");
+//        map.put("空见10", "少林");
+//        map.put("空见11", "少林");
+//        map.put("空见12", "少林");
+        for(Map.Entry<String, String> entry : map.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
+        System.out.println(map);
+```
+
+在有注释的情况下，HashMap的容量是16，下面是HashMap里的数据结构
+
+![](./../images/java/java_collection_hashmap_example_before_resize_inner_data_structure.png)
+
+可以看到tab[9]和tab[11]分别放置着两个value：tab[9]中，谢逊后面跟着张三丰；tab[11]中，赵敏后面跟着周芷若。
+
+谢逊的hash值是    00010001100010000011 1001
+
+​                &             00000000000000000000 1111  // 默认值16
+
+​                =              00000000000000000000 1001  // 1001也就是9，所以在tab[9]中
+
+张三丰的hash值是0001011011101101100100001001
+
+​                &                     00000000000000000000 1111  // 默认值16
+
+​                =                      00000000000000000000 1001  // 1001也就是9，所以也在tab[9]中
+
+这样谢逊和张三丰在tab中的index就都是tab[9]，这样就会产生hash冲突了，通过拉链法来解决，谢逊先进入桶中，所以谢逊节点的后继指针就指向张三丰，张三丰是第二个节点。
+
+注释放开之后会扩容成32
+
+![](./../images/java/java_collection_hashmap_example_after_resize_inner_data_structure.png)
+
+扩容之后会遍历所有的value，并重新计算value在新容量下的index，所以并不是原来在table中什么位置，现在就是什么位置的。
+
+```java
+do {
+    next = e.next;
+    // 原索引，oldCap是2次幂，以16扩成32为例，0001 0000和e.hash做&运算的时候，只要看低五位就行了，第四位全是0不需要考虑，倒数第五位是1，所以e.hash的倒数第五位就至关重要了，是0的话e.hash & oldCap就等于0，否则等于1，这个设计很巧妙，看懂！！！ 
+    if ((e.hash & oldCap) == 0) {
+        if (loTail == null)
+            loHead = e;
+        else
+            loTail.next = e;
+        loTail = e;
+    }
+    // 原索引+oldCap
+    else {
+        if (hiTail == null)
+            hiHead = e;
+        else
+            hiTail.next = e;
+        hiTail = e;
+    }
+} while ((e = next) != null);
+```
+
+原来谢逊后面跟着张三丰的，扩容之后就变成了空见神僧了，index也从tab[9]-->>tab[25]，所以不要有一种误解，觉得tab里放着的第一个是谢逊，扩容之后谢逊的位置还是不变的，这个是会变得，变还是不变却决于hash值的倒数第五位，这个bit位很关键，是0的话e.hash & oldCap就等于0，这样位置就不会变化，否则等于1，这样子位置就要加上oldCap变成新的index了，这个设计很巧妙！！！
 
 ### get
 

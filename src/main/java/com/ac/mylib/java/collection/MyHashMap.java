@@ -26,18 +26,18 @@ public class MyHashMap {
         map.put("张三丰", "武当派");
         map.put("殷素素", "天鹰教");
         map.put("空见", "少林");
-        map.put("空见1", "少林");
-        map.put("空见2", "少林");
-        map.put("空见3", "少林");
-        map.put("空见4", "少林");
-        map.put("空见5", "少林");
-        map.put("空见6", "少林");
-        map.put("空见7", "少林");
-        map.put("空见8", "少林");
-        map.put("空见9", "少林");
-        map.put("空见10", "少林");
-        map.put("空见11", "少林");
-        map.put("空见12", "少林");
+//        map.put("空见1", "少林");
+//        map.put("空见2", "少林");
+//        map.put("空见3", "少林");
+//        map.put("空见4", "少林");
+//        map.put("空见5", "少林");
+//        map.put("空见6", "少林");
+//        map.put("空见7", "少林");
+//        map.put("空见8", "少林");
+//        map.put("空见9", "少林");
+//        map.put("空见10", "少林");
+//        map.put("空见11", "少林");
+//        map.put("空见12", "少林");
         for(Map.Entry<String, String> entry : map.entrySet()) {
             System.out.println(entry.getKey() + ": " + entry.getValue());
         }
