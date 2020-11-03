@@ -21,6 +21,10 @@ Alibaba Java Code Guidelines—阿里巴巴 Java 代码规范
 
 GitToolBox--可以像eclipse一样在项目屁股后面显示git信息
 
+jclasslib bytecode viewer--是一个可以可视化已编译Java类文件和所包含的字节码的工具。 另外，它还提供一个库，可以让开发人员读写Java类文件和字节码。
+
+> GitHub地址：https://github.com/ingokegel/jclasslib
+
 ### 通用配置
 
 Eclipse和IDEA调试ArrayList，HashMap等集合的时候想查看这些集合的详细内部情况，Eclipse和IDEA都做了视图优化的，所以看到的一般都是精简的结构，要完全看到需要做一下设置
