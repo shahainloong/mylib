@@ -54,3 +54,17 @@ Postman
 
 ![sap_cp_pe_apply_account_for_rjp](./../images/chrome_extetion_postman.png)
 
+Ghelper 
+
+国内可以访问谷歌的插件，官网地址：https://ghelper.xyz/
+
+下载zip包后解压缩出来，里面有使用说明
+
+1.打开你的Chrome浏览器的 更多工具>扩展程序页面.
+或者直接在网址输入: chrome://extensions/
+
+2.这个页面点击 "添加已解压的扩展程序",如果没有，在右边有一个 “开发者模式” 开关，要打开.
+3.选择本次下载包里的 ghelper_source 目录
+4.确认后就行了.
+
+登录Ghelper，采用46qq/c19登录，登陆后就可以使用谷歌浏览器了。
