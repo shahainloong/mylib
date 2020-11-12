@@ -10,7 +10,10 @@ public class MySpringMain {
     ClassLoader loader = Thread.currentThread().getContextClassLoader();
     Class clazz = loader.loadClass("com.ac.mylib.spring4.Car");
 
-        ApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"conf/bean.xml"});
+//    ApplicationContext context = new ClassPathXmlApplicationContext(new String[]{"conf/bean.xml"});
+    ApplicationContext context = new ClassPathXmlApplicationContext("application.xml");
+        Car car = context.getBean(Car.class);
+        System.out.println(car.getCar());
     }
 }
 

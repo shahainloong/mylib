@@ -5,6 +5,30 @@ public class Car {
     private String color;
     private int maxSpeed;
 
+    public String getCar() {
+        return "Hello Car";
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        Car car = (Car)obj;
+        return this.brand.equals(car.brand);
+    }
+
     public Car() {
     }
 
