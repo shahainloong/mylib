@@ -1,4 +1,4 @@
-package com.ac.mylib.java.multithread;
+package com.ac.mylib.java.basic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +14,11 @@ public class MyImpl implements MyInterface {
   }
 
   @Override
-  public List<String> getName(List<String> names1) {
+  public List<String> getName(List<String> name) {
     List<String> names = new ArrayList<>();
     names.add("hello");
     names.add("world");
-    return names1.subList(i, 1);
+    return name.subList(i, 1);
   }
 
   public String getItem(int item, String name, boolean flag) {
