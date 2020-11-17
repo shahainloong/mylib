@@ -31,6 +31,14 @@ Eclipse和IDEA调试ArrayList，HashMap等集合的时候想查看这些集合�
 IDEA：Settings--Build,Execution,Deploymeng--Debugger--Data Views--Java:
 去掉Enable alternative view for Collection classes
 
+
+
+### 实用技巧
+
+日常重构技巧：https://blog.jetbrains.com/zh-hans/idea/2020/09/intellij-idea/
+
+
+
 ## 2. Spring Tool Suite
 
 原来叫Spring Tool Suite 3，简称sts，后来升级成了Spring Tool 4。
