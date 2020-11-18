@@ -6,8 +6,14 @@ import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 /**
- * 在 CGLIB 动态代理机制中 `MethodInterceptor` 接口和 `Enhancer` 类是核心
- * 2. 自定义 `MethodInterceptor` 并重写 `intercept` 方法，`intercept` 用于拦截增强被代理类的方法，和 JDK 动态代理中的 `invoke` 方法类似；
+ * <p>在 CGLIB 动态代理机制中 `MethodInterceptor` 接口和 `Enhancer` 类是核心</p>
+ * <pre>
+ * 2. 自定义{@link net.sf.cglib.proxy.MethodInterceptor MethodInterceptor}并重写{@link net.sf.cglib.proxy.MethodInterceptor#intercept intercept}方法，
+ *    intercept用于拦截增强被代理类的方法，和JDK动态代理中的{@link java.lang.reflect.InvocationHandler#invoke invoke}方法类似；
+ * </pre>
+ *
+ * @see net.sf.cglib.proxy.MethodInterceptor
+ * @see java.lang.reflect.InvocationHandler#invoke
  */
 public class DebugMethodInterceptor implements MethodInterceptor {
   /**

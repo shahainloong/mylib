@@ -4,8 +4,10 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
- * JDK 动态代理类
- * 2. 自定义 `InvocationHandler` 并重写`invoke`方法，在 `invoke` 方法中我们会调用原生方法（被代理类的方法）并自定义一些处理逻辑；
+ * <p>JDK 动态代理类</p>
+ * 2. 自定义{@link InvocationHandler InvocationHandler}并重写{@link InvocationHandler#invoke invoke}方法，在{@link InvocationHandler#invoke invoke}方法中我们会调用原生方法（被代理类的方法）并自定义一些处理逻辑；
+ *
+ * @see java.lang.reflect.InvocationHandler#invoke
  */
 public class DebugInvocationHandler implements InvocationHandler {
   /**
