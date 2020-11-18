@@ -1,4 +1,7 @@
-package com.ac.mylib.java.basic;
+package com.ac.mylib.java.basic.proxy.statical;
+
+import com.ac.mylib.java.basic.proxy.MySmsService;
+import com.ac.mylib.java.basic.proxy.MySmsServiceImpl;
 
 /**
  * 静态代理
@@ -23,5 +26,6 @@ public class MySmsProxy implements MySmsService {
     MySmsService smsService = new MySmsServiceImpl();
     MySmsProxy smsProxy = new MySmsProxy(smsService);
     smsProxy.send("Hello JAVA");
+
   }
 }

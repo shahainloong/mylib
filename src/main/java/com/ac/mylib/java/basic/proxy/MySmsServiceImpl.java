@@ -1,4 +1,6 @@
-package com.ac.mylib.java.basic;
+package com.ac.mylib.java.basic.proxy;
+
+import com.ac.mylib.java.basic.proxy.MySmsService;
 
 public class MySmsServiceImpl implements MySmsService {
   @Override

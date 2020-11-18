@@ -1,4 +1,4 @@
-package com.ac.mylib.java.basic;
+package com.ac.mylib.java.basic.proxy;
 
 /**
  *
