@@ -1,10 +1,10 @@
 package com.ac.mylib.java.basic.proxy.jdkdynamic;
 
 import java.lang.reflect.Proxy;
+import java.util.function.Function;
 
 import com.ac.mylib.java.basic.proxy.MySmsService;
 import com.ac.mylib.java.basic.proxy.MySmsServiceImpl;
-import com.google.common.base.Function;
 
 /**
  * 这个是获取代理对象的工厂类
