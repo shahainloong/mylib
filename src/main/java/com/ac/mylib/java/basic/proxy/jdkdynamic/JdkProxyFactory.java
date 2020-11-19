@@ -18,6 +18,7 @@ import com.ac.mylib.java.basic.proxy.MySmsServiceImpl;
  * JDK 动态代理有一个最致命的问题是其只能代理实现了接口的类!
  *
  * @see java.lang.reflect.Proxy#newProxyInstance
+ * @author Sha, Hailong
  */
 public class JdkProxyFactory {
   /**
