@@ -27,8 +27,9 @@ public class JdkProxyFactory {
    * @return
    */
   public static Object getProxy(Object target) {
-    return Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(),
-      new DebugInvocationHandler(target));
+    return Proxy.newProxyInstance(target.getClass().getClassLoader(), // 定义代理类的类加载器
+      target.getClass().getInterfaces(), // 代理类需要实现的接口，可以指定多个
+      new DebugInvocationHandler(target)); // 代理对象对应的自定义，匹配方法调用的调用处理器
   }
 
   public static void main(String[] args) {
