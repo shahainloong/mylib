@@ -76,3 +76,28 @@ Ghelper
 4.确认后就行了.
 
 登录Ghelper，采用46qq/c19登录，登陆后就可以使用谷歌浏览器了。
+
+
+
+## 4. Java注释
+
+在java的注释/***/中，所有的文字都是在一行显示的，因此需要一些HTML标签来美化下显示的内容。
+
+| <p>标签                                                   | 表示换行                                                    |
+| --------------------------------------------------------- | ----------------------------------------------------------- |
+| <blockquote><pre> String str = "abc"; </pre></blockquote> | 居中显示，换行有效                                          |
+| <tt>null</tt>                                             | 在注释用到其他的类名可以用该标签格式化,会使类名显示与众不同 |
+| <ul><li>unordered list</li></ul>                          | 无序列表                                                    |
+| <ol><li>ordered list</li></ol>                            | 含有数字123的有序列表                                       |
+|                                                           |                                                             |
+
+@Annotation标签
+
+| @author  Echo Sha                                          | 显示作者                                                     |
+| ---------------------------------------------------------- | ------------------------------------------------------------ |
+| @see     java.lang.Object#toString()                       | 参考toString方法                                             |
+| @since   JDK1.0                                            | 从哪个版本开始                                               |
+| @param   loader the class loader to define the proxy class | 显示参数，loader是参数名，空格+参数说明                      |
+| {@link java.lang.Character Character}                      | 链接跳转到Character类，java.lang.Character是类名，第二个Character是显示的文字 |
+| {@code String}                                             |                                                              |
+
