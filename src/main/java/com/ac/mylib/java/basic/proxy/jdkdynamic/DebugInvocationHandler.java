@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
  */
 public class DebugInvocationHandler implements InvocationHandler {
   /**
-   * 代理类中的真实对象
+   * 代理类中的真实对象，也就是被代理的类，非代理类
    */
   private final Object target;
 
