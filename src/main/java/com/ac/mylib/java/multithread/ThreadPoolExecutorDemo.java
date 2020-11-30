@@ -31,11 +31,11 @@ public class ThreadPoolExecutorDemo {
         for (int i = 0; i < 10; i++) {
             executor.execute(() -> {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                System.out.println("CurrentThread name:" + Thread.currentThread().getName() + "date：" + LocalDateTime.now());
+                System.out.println("CurrentThread name:" + Thread.currentThread().getName() + " date：" + LocalDateTime.now());
             });
         }
         CompletableFuture<String> future = CompletableFuture.supplyAsync(()->"SAP");
