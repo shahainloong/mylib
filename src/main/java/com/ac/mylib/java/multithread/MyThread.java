@@ -12,5 +12,5 @@ public class MyThread extends Thread {
     thread.start();
     System.out.println("hello main");
   }
-  
+
 }
